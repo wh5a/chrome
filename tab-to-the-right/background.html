@@ -1,21 +1,16 @@
 <script>
 var selIndex;
-//var maxIndex = 0;
+var maxIndex;
 
 chrome.tabs.onCreated.addListener(function(tab) {
-  /*
   var myIndex = tab.index;
   chrome.tabs.getAllInWindow(tab.windowId, function(tabs) {
     maxIndex = tabs.length - 1;
+    if (myIndex == maxIndex)
+      chrome.tabs.move(tab.id, {
+        index: selIndex + 1
+      });
   });
-  */
-  /* I intended for the new tab to move only if it's created as the last tab.
-     However, this comparison always happens before the above callback takes place.
-  if (myIndex == maxIndex)
-   */
-    chrome.tabs.move(tab.id, {
-      index: selIndex + 1
-    });
 });
 
 chrome.tabs.onSelectionChanged.addListener(function(tabId, _) {
