@@ -1,0 +1,10 @@
+{
+  "name": "Tab to the next right",
+  "version": "0.2",
+  "author": "Wei Hu",
+  "description": "Brings the newly created tab to the next right of the currently selected tab.",
+  "background_page": "background.html",
+  "permissions": [
+    "tabs"
+  ]
+}
