@@ -4,7 +4,7 @@ var maxIndex;
 
 chrome.tabs.onCreated.addListener(function(tab) {
   var myIndex = tab.index;
-  chrome.tabs.getAllInWindow(tab.windowId, function(tabs) {
+  chrome.tabs.getAllInWindow(null, function(tabs) {
     maxIndex = tabs.length - 1;
     if (myIndex == maxIndex)
       chrome.tabs.move(tab.id, {
@@ -23,26 +23,22 @@ chrome.tabs.onMoved.addListener(function(_, moveInfo) {
   selIndex = moveInfo.toIndex;
 });
 
-chrome.tabs.onRemoved.addListener(function(_) {
-  chrome.windows.getCurrent(function (window) {
-    chrome.tabs.getSelected(window.id, function(tab) {
-      selIndex = tab.index;
-    });
+function updateSel() {
+  chrome.tabs.getSelected(null, function(tab) {
+    selIndex = tab.index;
   });
+}
+
+chrome.tabs.onRemoved.addListener(function(_) {
+  updateSel();
 });
 
 chrome.tabs.onAttached.addListener(function(_, _) {
-  chrome.windows.getCurrent(function (window) {
-    chrome.tabs.getSelected(window.id, function(tab) {
-      selIndex = tab.index;
-    });
-  });
+  updateSel();
 });
 
-chrome.windows.onFocusChanged.addListener(function(windowId) {
-  chrome.tabs.getSelected(windowId, function(tab) {
-    selIndex = tab.index;
-  });
+chrome.windows.onFocusChanged.addListener(function(_) {
+  updateSel();
 });
 
 </script>
