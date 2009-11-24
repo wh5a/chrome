@@ -10,10 +10,17 @@ function simulateClick(node) {
   node.dispatchEvent(event);
 }
 
-/*
- * original
- */
+function simulateKeyPress(node, keyCode) {
+  var e = node.ownerDocument.createEvent("KeyboardEvent");
+  e.initKeyboardEvent('keypress', true, true, window, false, false, false, false, 78, 0x4E);
+  node.dispatchEvent(e);
+}
+
 document.onkeydown = function(e){
+  var name = e.target.tagName;
+  // Do nothing if the target of this event is an edit box
+  if (name == "TEXTAREA" || name == "INPUT")
+    return;
   if (e.keyCode==86 && e.shiftKey){ // 'V'
     // Get the current entry node
     current_entry = document.getElementById('current-entry')
@@ -26,6 +33,7 @@ document.onkeydown = function(e){
     // mark the entry as read
     simulateClick(current_entry.childNodes[0]);
     simulateClick(current_entry.childNodes[0]);
+
     // make sure the event doesn't propate
     e.stopPropagation();
     e.preventDefault();
