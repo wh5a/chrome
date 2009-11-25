@@ -1,10 +1,20 @@
 {
   "name": "Tab to the next right",
-  "version": "1.0",
+  "version": "1.1",
   "author": "Wei Hu",
   "description": "Brings the newly created tab to the next right of the currently selected tab.",
   "background_page": "background.html",
   "permissions": [
     "tabs"
-  ]
+  ],
+  // "content_scripts": [
+  //   {
+  //     "matches": [
+  //       "http://*/*",
+  //       "https://*/*"
+  //     ],
+  //     "js": ["onunload.js"]
+  //   }
+  // ],
+  "options_page": "options.html"
 }
