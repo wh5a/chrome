@@ -5,45 +5,39 @@
   
   All callbacks are called asynchronously in a random order.
 
-  Function updateCachedTabs (invoked from the unload listener in the
-  content script), therefore, is not guaranteed to execute before the
-  onRemoved listener on the tab.
-
+  The unload listener in the content script, therefore, is not
+  guaranteed to execute before the onRemoved listener on the tab.
   Even if it's called first, the tabs we get will already have the
   closed tab removed.
 
-  Being unable to intercept before a tab is closed, we cannot
-  determine if the tab being closed was selected or not. Without
-  knowing this, we cannot correctly pick which tab to select.
-  Therefore, I have to comment out the code.
+  To work around being unable to intercept before a tab is closed, we
+  have to maintain a local cache every time tabs change, just as we do
+  with selIndex.
 */
 
-var selIndex;
-
-/*
 var cachedTabs;
 
-function cloneTabId(a) {
-  var b = new Array();
-  for (var tab in a)
-    b[tab] = a[tab].id;
-  return b;
+function cloneTabInfo(a) {
+  cachedTabs = new Array();
+  for (var tab in a) {
+    cachedTabs[tab] = new Object();
+    cachedTabs[tab].id = a[tab].id;
+    cachedTabs[tab].selected = a[tab].selected;
+  }
 }
 
 function updateCachedTabs(){
   chrome.tabs.getAllInWindow(null, function(tabs) {
-    cachedTabs = cloneTabId(tabs);
+    cloneTabInfo(tabs);
   });
 }
 
-chrome.extension.onRequest.addListener(
-  function(request, _, sendResponse) {
-    if (request.func == "updateCachedTabs"){
-      updateCachedTabs();
-    }
-  }
-);
-*/
+function findIndex(p) {
+  for (var i in cachedTabs)
+    if (p(cachedTabs[i]))
+      return parseInt(i);
+  return null;
+}
 
 function restore_options() {
   var pos = localStorage["create"];
@@ -55,67 +49,74 @@ function restore_options() {
 chrome.tabs.onCreated.addListener(function(tab) {
   var create = localStorage["create"];
   var myIndex = tab.index;
-  if (create == 2) return; // Do nothing
-  if (create == 1) chrome.tabs.move(tab.id, { // Always move?
-    index: selIndex + 1
-  });
+  var selIndex = findIndex(function(x) { return x.selected; });
+  if (create == 2 || selIndex == null) { // Do nothing?
+    updateCachedTabs();
+    return;
+  }
+  if (create == 0) { // Smart move?
+    chrome.tabs.getAllInWindow(null, function(tabs) {
+      var maxIndex = tabs.length - 1;
+      if (myIndex == maxIndex)
+        chrome.tabs.move(tab.id, {
+          index: selIndex + 1
+        }, updateCachedTabs);
+    });    
+  }
+  else // Always move?
+    chrome.tabs.move(tab.id, {
+      index: selIndex + 1
+    }, updateCachedTabs);
+});
+
+chrome.tabs.onRemoved.addListener(function(tabId) {
   chrome.tabs.getAllInWindow(null, function(tabs) {
-    var maxIndex = tabs.length - 1;
-    if (myIndex == maxIndex)
-      chrome.tabs.move(tab.id, {
-        index: selIndex + 1
-      });
+    var close = localStorage["close"];
+    if (close > 0) {
+      var closedIndex = findIndex(function(x) {return (x.id == tabId);});
+      if (closedIndex == null) { // Shouldn't happen!
+        console.error(tabId);
+        console.error(tabs);
+        console.error(cachedTabs);
+      }
+      else if (cachedTabs[closedIndex].selected) { // Change focus to the left or right only if the tab being closed was focused
+        var nextIndex = closedIndex; // Select right
+        if (close == 1 && nextIndex > 0) // Select left
+          nextIndex -= 1;
+        if (nextIndex > tabs.length - 1) nextIndex = tabs.length - 1;
+        chrome.tabs.update(tabs[nextIndex].id, {
+          selected: true
+        }, updateCachedTabs);
+      }
+    }
+    cloneTabInfo(tabs);
   });
 });
 
 chrome.tabs.onSelectionChanged.addListener(function(tabId, _) {
-  chrome.tabs.get(tabId, function(tab) {
-    selIndex = tab.index;
+  chrome.tabs.getAllInWindow(null, function(tabs) {
+    // Don't update selection if a tab is being closed, and this function gets called before onRemoved
+    if (cachedTabs.length <= tabs.length) {
+      for (var tab in cachedTabs) {
+        if (cachedTabs[tab].id == tabId)
+          cachedTabs[tab].selected = true;
+        else
+          cachedTabs[tab].selected = false;
+      }
+    }
   });
 });
-
-function updateSel() {
-  chrome.tabs.getSelected(null, function(tab) {
-    selIndex = tab.index;
-  });
-}
 
 chrome.tabs.onMoved.addListener(function(_, _) {
-  updateSel();
-});
-
-chrome.tabs.onRemoved.addListener(function(tabId) {
-  /*
-  chrome.tabs.getAllInWindow(null, function(tabs) {
-    var close = localStorage["close"];
-    var nextIndex = selIndex; // Select right
-    var closedIndex = 0;
-    for (;closedIndex != length;closedIndex++)
-      if (cachedTabs[closedIndex] == tabId)
-        break;
-
-    // Check if the selected tab is being closed
-    if (selIndex == closedIndex && close != 0) {
-      if (close == 1 && nextIndex > 0) // Select left
-        nextIndex -= 1;
-      if (nextIndex > tabs.length) nextIndex = tabs.length;
-      chrome.tabs.update(tabs[nextIndex].id, {
-        selected: true
-      });
-    }
-    // The selected tab's index needs updating
-    else updateSel();
-  });
-  */
-  updateSel();
+  updateCachedTabs();
 });
 
 chrome.tabs.onAttached.addListener(function(_, _) {
-  updateSel();
+  updateCachedTabs();
 });
 
 chrome.windows.onFocusChanged.addListener(function(_) {
-  updateSel();
+  updateCachedTabs();
 });
 
 </script>
