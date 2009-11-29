@@ -40,8 +40,8 @@ function restore_options() {
 function translate() {
   chrome.tabs.getSelected( null , function(tab) {
     url = (tab.url);  
-    chrome.tabs.create({url: "http://translate.google.com/translate?u=" + url + "&tl=" + language + "&sl=auto" ,
-                       "index": tab.index+1});
+    chrome.tabs.update(tab.id, {url: "http://translate.google.com/translate?u=" + url + "&tl=" + language + "&sl=auto" ,
+                               });
   });}
 
 //opening google translate homepage
