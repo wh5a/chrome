@@ -1,0 +1,91 @@
+<html>
+  <head>
+    
+	<script>
+var url;
+var language;
+var en="en";
+var zhcn="zh-CN";
+
+//Dynamic Icon Set
+function setIcon(path) {
+  path = "flags/" + language + ".png";
+  var img = new Image();
+  img.onload = function() {
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width > 19 ? 19 : img.width;
+    canvas.height = img.height > 19 ? 19 : img.height;
+
+    var canvas_context = canvas.getContext('2d');
+    canvas_context.clearRect(0, 0, canvas.width, canvas.height);
+    canvas_context.drawImage(img, 0, 0, canvas.width, canvas.height);
+    var imgData = canvas_context.getImageData(0, 0, canvas.width, canvas.height);
+    chrome.browserAction.setIcon({imageData: imgData});
+    delete imgData;
+  }
+  img.src = path;
+}
+
+//Saving language to localStorage
+function save_options() {
+  localStorage["ll"] = language;
+}
+
+// Restores language from localStorage.
+function restore_options() {
+  language = localStorage["ll"];
+}
+
+//Creating a new tab with the lagnuage pointed out
+function translate() {
+  chrome.tabs.getSelected( null , function(tab) {
+    url = (tab.url);  
+    chrome.tabs.create({url: "http://translate.google.com/translate?u=" + url + "&tl=" + language + "&sl=auto" ,
+                       "index": tab.index+1});
+  });}
+
+//opening google translate homepage
+function translate_homepage(){chrome.tabs.create({url: "http://translate.google.com"});}
+	
+	</script>
+    
+	<style type="text/css">
+		div.toolstrip-button {
+		color: #000;
+		cursor: hand;
+		font: normal 13px helvetica, arial, verdana;
+		width: 150px;
+		border-bottom: 1px solid #eee;
+		}
+		div.toolstrip-button:last-child {border-bottom-style: none;}
+		div.toolstrip-button:hover {
+			background-color: #3274d0;
+			color: #fff;
+			}
+		
+		img.flags{
+			height:13;
+			width:13;}
+		
+		img.logo{cursor: hand;}
+    </style>
+   <STYLE type="text/css"> 
+      p.right {text-align: right}
+   </STYLE> 
+	
+  </head>
+  <body onload="restore_options(),setIcon()">
+  <p class="right">
+	<button onclick="translate()">Translate</button>
+  </p>
+	
+	<img class="logo" onclick="translate_homepage()" src="logo.jpg">
+	
+	
+	<div class="toolstrip-button" onclick="language=en,setIcon(),save_options()"><img class="flags" src="flags/en.png"> English </div>
+	<div class="toolstrip-button"
+	onclick="language=zhcn,setIcon(),save_options()"><img class="flags"
+	src="flags/zh-CN.png"> Simplified Chinese </div>
+	
+  </body>
+</html>

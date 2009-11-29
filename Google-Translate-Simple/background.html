@@ -1,0 +1,27 @@
+<html>
+<head>
+<script>
+// init() draw the icon on start up of the language saved in localStorage
+function init(){
+	var language = localStorage["ll"];
+    path = "flags/" + language + ".png";
+    var img = new Image();
+    img.onload = function() {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width > 19 ? 19 : img.width;
+        canvas.height = img.height > 19 ? 19 : img.height;
+
+        var canvas_context = canvas.getContext('2d');
+        canvas_context.clearRect(0, 0, canvas.width, canvas.height);
+        canvas_context.drawImage(img, 0, 0, canvas.width, canvas.height);
+        var imgData = canvas_context.getImageData(0, 0, canvas.width, canvas.height);
+        chrome.browserAction.setIcon({imageData: imgData});
+        delete imgData;
+    }
+    img.src = path;
+}
+</script>
+</head>
+<body onload="init()">
+</body>
+</html>
