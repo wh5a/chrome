@@ -8,4 +8,4 @@ with a lot of nice changes:
 5. Frees up local storage (original version keeps writing to it).
 6. Minor UI changes, such as wider popup and url tooltips.
 
-Note that tabs created before the installation of this extension will not be monitored, and you may get confusing results at first.
+Note that tabs created before the installation of this extension will not be monitored.
