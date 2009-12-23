@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+  #contentDiv {
+    width: 300px;
+    line-height: 95%
+  }
+  hr { margin:4px; }
+
+  .grey{ color: #888; }
+
+  .table {
+    background-color: #ebeff9;
+    width: 100%;
+  }
+</style>
+<script src="popup.js"> </script>
+<script src="init.js"> </script>
+<script>
+
+function loadContent()
+{
+	var content = getClosed();	
+	contentDiv = document.getElementById("contentDiv");	
+	contentDiv.innerHTML = content;	
+}
+
+</script>
+
+</head>
+<body onload="loadContent()">
+  <div id="contentDiv"> </div>
+  <table class="table" cellspacing="0" cellpadding="0" border="0" frame="void">
+    <tr>
+      <td>
+        <button onclick="reset()">Reset</button>
+      </td>
+      <td style="text-align: right">
+        <a href="http://github.com/wh5a/chrome/tree/master/unclose" target="_blank">
+          Homepage
+        </a>
+      </td>
+    </tr>
+  </table>
+  
+</body>
+</html>

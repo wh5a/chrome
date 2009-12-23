@@ -1,0 +1,11 @@
+Fork of https://chrome.google.com/extensions/detail/jpiminnjjibejnjmemcmacdgckeeplaf,
+with a lot of nice changes:
+
+1. Only record http/https/ftp/file pages.
+2. Better support for webpages with special characters in the title.
+3. Automatically forgets a tab when it's restored.
+4. Tries to remember the tab's position, known to be flawed at this point.
+5. Frees up local storage (original version keeps writing to it).
+6. Minor UI changes, such as wider popup and url tooltips.
+
+Note that tabs created before the installation of this extension will not be monitored, and you may get confusing results at first.

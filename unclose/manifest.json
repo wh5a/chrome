@@ -1,0 +1,19 @@
+{
+  "name": "MK UndoCloseTab",
+  "version": "2.0",
+  "author": "Wei Hu",
+  "description": "Undo your closed tabs",
+  "background_page": "background.html",    
+  "icons": { 
+           "48": "icon.png"
+           },
+          
+  "browser_action": {
+    "default_icon": "icon.png",
+    "popup": "popup.html",
+    "default_title": "Undo closed tabs"
+  },
+  "permissions": [
+    "tabs"
+  ]
+}
