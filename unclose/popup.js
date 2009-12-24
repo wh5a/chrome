@@ -19,7 +19,9 @@ function getClosed()
     tabId = localStorage["ClosedTab-"+i];
     tabUrl = localStorage["TabList-"+tabId];
     if (tabUrl) {
-      stringForThisUrl = "<a href = \""+ tabUrl + "\" title = \""+ tabUrl + "\" onclick=\"showUrl("+tabId+")\"/>" + localStorage["TabTitle-"+tabId] + "</a><hr>";
+      // Another favicon service is http://www.google.com/s2/favicons?domain=
+      stringForThisUrl = "<img src=\"" + "http://getfavicon.appspot.com/" + tabUrl + "\"/> " + 
+        "<a href = \""+ tabUrl + "\" title = \""+ tabUrl + "\" onclick=\"showUrl("+tabId+")\"/>" + localStorage["TabTitle-"+tabId] + "</a><hr>";
       returnString += stringForThisUrl;
       j++;
     }

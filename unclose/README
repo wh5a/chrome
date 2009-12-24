@@ -6,7 +6,8 @@ with a lot of nice changes:
 3. Automatically forgets a tab when it's restored.
 4. Tries to remember the tab's position, known to be flawed at this point.
 5. Frees up local storage (original version keeps writing to it).
-6. Minor UI changes, such as wider popup (400px) and url tooltips.
+6. Minor UI changes, such as wider popup (500px) and url tooltips.
 7. Divide tab history into 20-item pages.
+8. Favicons (at this point loading of favicons halts the popup, would like to fix it)
 
 Note that tabs created before the installation of this extension will not be monitored.
