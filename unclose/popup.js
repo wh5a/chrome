@@ -1,21 +1,45 @@
+var nItems = 20; // Items in a page
+var pageNo = 0;
+
 function getClosed()
 {		
   var returnString = "<html><body>";
-//  var notFirst = false;
-  for(i = localStorage["closeCount"]-1; i >= 0; i --)
+  var j = 0;
+
+  // Drop the first (pageNo*nItems) valid items
+  for(i = localStorage["closeCount"] - 1; i>=0 && j<pageNo*nItems; i--)
+  {
+    tabId = localStorage["ClosedTab-"+i];
+    tabUrl = localStorage["TabList-"+tabId];
+    if (tabUrl) j++;
+  }
+
+  for(j = 0; i>=0 && j<(pageNo+1)*nItems; i --)
   {
     tabId = localStorage["ClosedTab-"+i];
     tabUrl = localStorage["TabList-"+tabId];
     if (tabUrl) {
       stringForThisUrl = "<a href = \""+ tabUrl + "\" title = \""+ tabUrl + "\" onclick=\"showUrl("+tabId+")\"/>" + localStorage["TabTitle-"+tabId] + "</a><hr>";
       returnString += stringForThisUrl;
-      //notFirst = true;
+      j++;
     }
   }
   
   returnString += "</body></HTML>"	
 
   return returnString;
+}
+
+function next() {
+  if (localStorage["actualCount"] > (pageNo+1) * nItems)
+    pageNo++;
+  loadContent();
+}
+
+function prev() {
+  if (pageNo > 0)
+    pageNo--;
+  loadContent();
 }
 
 // Show |url| in a new tab.
@@ -26,6 +50,7 @@ function showUrl(tabId) {
   clear(tabId);
   localStorage["actualCount"] --;
   setBadgeText();
+  loadContent();
 }
 
 function reset()
@@ -42,4 +67,6 @@ function reset()
     delete localStorage[x];
   */
   init();
+  pageNo = 0;
+  loadContent();
 }

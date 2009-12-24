@@ -7,5 +7,6 @@ with a lot of nice changes:
 4. Tries to remember the tab's position, known to be flawed at this point.
 5. Frees up local storage (original version keeps writing to it).
 6. Minor UI changes, such as wider popup and url tooltips.
+7. Divide tab history into 20-item pages.
 
 Note that tabs created before the installation of this extension will not be monitored.
