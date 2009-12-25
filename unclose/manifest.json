@@ -1,6 +1,6 @@
 {
   "name": "MK UndoCloseTab",
-  "version": "2.2",
+  "version": "2.3",
   "author": "Wei Hu",
   "description": "Undo your closed tabs",
   "background_page": "background.html",    

@@ -30,6 +30,15 @@ function loadContent()
   else document.getElementById("next").disabled = true;
 }
 
+function openHome()
+{
+  chrome.tabs.getSelected(null, function(tab) {
+    chrome.tabs.create({"url":'http://github.com/wh5a/chrome/tree/master/unclose',
+                        "index" : tab.index + 1});
+  });
+  window.close();
+}
+
 </script>
 
 </head>
@@ -47,9 +56,7 @@ function loadContent()
         <button id="next" onclick="next()">&gt;</button>
       </td>
       <td style="text-align: right">
-        <a href="http://github.com/wh5a/chrome/tree/master/unclose"
-           target="_blank" title="http://github.com/wh5a/chrome/tree/master/unclose">
-          Homepage
+        <A href="javascript:openHome()" title="http://github.com/wh5a/chrome/tree/master/unclose">Homepage
         </a>
       </td>
     </tr>
