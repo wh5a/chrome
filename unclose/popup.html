@@ -35,8 +35,8 @@ function openHome()
   chrome.tabs.getSelected(null, function(tab) {
     chrome.tabs.create({"url":'http://github.com/wh5a/chrome/tree/master/unclose',
                         "index" : tab.index + 1});
+    window.close();
   });
-  window.close();
 }
 
 </script>
