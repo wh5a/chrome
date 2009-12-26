@@ -164,14 +164,6 @@ function save_options() {
         console.log("saved: " + id + " as " + value);
     }
     
-    var iconRadios = document.forms[0].icon_set;
-    for(var i in iconRadios) {
-        if(iconRadios[i].checked) {
-            localStorage["gc_icon_set"] = iconRadios[i].value;
-            break;
-        }
-    }
-    
     var previewRadios = document.forms[0].preview_setting;
     for(var i in previewRadios) {
         if(previewRadios[i].checked) {
@@ -207,27 +199,6 @@ function restore_options() {
         console.log("restored: " + id + " as " + value);
     }
     
-    spawnIconRow("set1", "Default");
-    spawnIconRow("set2", "Small");
-    spawnIconRow("set3", "Monochrome");
-    spawnIconRow("set4", "Alternative 1");
-    spawnIconRow("set5", "Alternative 2");
-    spawnIconRow("set6", "Chromified Classic");
-    spawnIconRow("set7", "Chromified Grey");
-    
-    var iconRadios = document.forms[0].icon_set;
-    var iconFound = false;
-    for(var i in iconRadios) {
-        if(iconRadios[i].value == localStorage["gc_icon_set"]) {
-            iconRadios[i].checked = true;
-            iconFound = true;
-            break;
-        }
-    }
-    if(!iconFound) {
-        iconRadios[0].checked = true;
-    }
-    
     var previewRadios = document.forms[0].preview_setting;
     for(var i in previewRadios) {
         if(previewRadios[i].value == localStorage["gc_preview_setting"]) {
@@ -253,11 +224,6 @@ function restore_options() {
         acc_sel.add(new Option(accounts[i].domain), null);
     }
     acc_sel.size = accounts.length + 1;
-}
-
-function spawnIconRow(value, description) {
-    var selectionElement = document.getElementById("icon_selection");
-    selectionElement.innerHTML += '<span><input type="radio" name="icon_set" value="' + value + '" /><img src="icons/' + value + '/not_logged_in.gif" /><img src="icons/' + value + '/no_new.gif" /><img src="icons/' + value + '/new.gif" /> <small>' + description + '</small></span><br />';
 }
 
 function add_account() {
@@ -301,16 +267,10 @@ function remove_account() {
     <form>
     <table>
         <tr>
-            <td width="50%">
-                Icon selection:<br />
-                <div id="icon_selection"></div>
-            </td>
-            <td valign="top">
+            <td colspan="2">
                 Preview window setting:<br />
                 <input type="radio" name="preview_setting" value="0" /> Always off <a title="Disables the preview popup window (not recommended) and opens the first account with unread mail" style="cursor: help">?</a>
-                <br />
                 <input type="radio" name="preview_setting" value="1" /> Automatic <a title="Only shows the preview window when there's unread mail" style="cursor: help">?</a>
-                <br />
                 <input type="radio" name="preview_setting" value="2" /> Always on <a title="Always shows the preview window" style="cursor: help">?</a>
             </td>
         </tr>
