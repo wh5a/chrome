@@ -12,6 +12,8 @@
     background-color: #ebeff9;
     width: 100%;
   }
+  a { text-decoration:none }
+  body { margin: 0 }
 </style>
 <script src="popup.js"> </script>
 <script src="init.js"> </script>
@@ -30,6 +32,8 @@ function loadContent()
   else document.getElementById("next").disabled = true;
 }
 
+window.onload = loadContent;
+
 function openHome()
 {
   chrome.tabs.getSelected(null, function(tab) {
@@ -42,7 +46,7 @@ function openHome()
 </script>
 
 </head>
-<body onload="loadContent()">
+<body>
   <div id="contentDiv"> </div>
   <table class="table" cellspacing="0" cellpadding="0" border="0" frame="void">
     <tr>
