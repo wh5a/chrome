@@ -14,7 +14,7 @@ function getClosed()
     if (tabUrl) j++;
   }
 
-  for(j = 0; i>=0 && j<(pageNo+1)*nItems; i --)
+  for(j = 0; i>=0 && j<nItems; i --)
   {
     tabId = localStorage["ClosedTab-"+i];
     tabUrl = localStorage["TabList-"+tabId];
@@ -22,8 +22,7 @@ function getClosed()
       var stringForThisUrl = "";
 
       // For security concerns, only shows favicon for http pages.
-      var re = /^http:/;
-      if (re.test(tabUrl))
+      if (/^http:/.test(tabUrl))
         // Another favicon service is http://www.google.com/s2/favicons?domain=
         stringForThisUrl = "<img src=\"" + "http://getfavicon.appspot.com/" + tabUrl + "\" width=16 height=16 /> ";
 
