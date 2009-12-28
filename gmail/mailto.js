@@ -15,7 +15,7 @@ function rewriteMailtoToGMailUrl(inUrl) {
     var retUrl = inUrl;    
     var subject = retUrl.match(/subject=([^&]*)/i);
     if(subject != null) {
-        subject = encodeURIComponent(subject[1]);
+        subject = encodeURIComponent(unescape(subject[1]));
         retUrl = retUrl.replace(/subject=([^&]*)/i, "su=" + subject);    
     }    
     retUrl = retUrl.replace("?", "&");

@@ -93,7 +93,7 @@ div.inboxLink a {
     font-weight: bold;
 }
 
-a.inboxLink, a.composeLink {
+a.inboxLink, a.composeLink, a.star-link {
     display: inline-block;
     float: left;
 	width: 16px;
@@ -119,6 +119,14 @@ a.composeLink {
 
 a.composeLink:hover {
 	background: transparent url("img/compose_hover.png") center center;
+}
+
+a.star-link {
+    background: transparent url("img/star.png") center center;
+}
+
+a.star-link:hover {
+    background: transparent url("img/star_hover.png") center center;
 }
 
 
@@ -387,6 +395,14 @@ function spamThread(accountId, mailid) {
     mailAccounts[accountId].spamThread(mailid);
 }
 
+function starThread(accountId, mailid) {
+    mailAccounts[accountId].starThread(mailid);
+    var starLink = document.getElementById(mailid + "_star-link");
+    if(starLink != null) {
+        starLink.style.background = "url(img/star_hover.png)";
+    }
+}
+
 function replyTo(accountId, mailid) {
 	for(var i in allMail) {
 		if(allMail[i].id == mailid) {
@@ -516,8 +532,7 @@ function parseMail(accountId) {
                         if(mail.summary != null && mail.summary.length > 0) {
                             mailElement +=
                             "<div class=\"title\">" + 
-                                "<span><a href=\"javascript:openMail('" + accountId + "','" + mail.id + "');\" title=\"Open in Gmail\">" + mail.title + "</a></span>" +
-                                //"<span class=\"lowerright\" id=\"" + mail.id + "_more-link\"><a href=\"javascript:getThread('" + accountId + "','" + mail.id + "');\" title=\"View entire message\" class=\"more-link\"><img src=\"img/more.png\" class=\"hidden\" /></a></span>" +
+                                "<span><a href=\"javascript:starThread('" + accountId + "','" + mail.id + "');\" title=\"Star mail\" class=\"star-link\" id=\"" + mail.id + "_star-link\"><img src=\"img/star_hover.png\" alt=\"Star mail\" class=\"hidden\"/></a><a href=\"javascript:openMail('" + accountId + "','" + mail.id + "');\" title=\"Open in Gmail\">" + mail.title + "</a></span>" +
 								"<span class=\"lowerright\"><a href=\"javascript:replyTo('" + accountId + "','" + mail.id + "');\" title=\"Reply to mail\" class=\"reply-link\"><img src=\"img/reply.png\" alt=\"Reply\" class=\"hidden\" /></a></span>" +
                                 "<span class=\"lowerright hidden\" id=\"" + mail.id + "_less-link\"><a href=\"javascript:hideBody('" + mail.id + "');\" title=\"Show summary\" class=\"less-link\"><img src=\"img/more.png\" class=\"hidden\" /></a></span>" +
                             "</div>" +
@@ -525,8 +540,9 @@ function parseMail(accountId) {
                         } else {
                             mailElement +=
                             "<div class=\"title\">" + 
-                                "<span><a href=\"javascript:openMail('" + accountId + "','" + mail.id + "');\" title=\"Open in Gmail\">" + mail.title + "</a></span>" +
+                                "<span><a href=\"javascript:starThread('" + accountId + "','" + mail.id + "');\" title=\"Star mail\" class=\"star-link\" id=\"" + mail.id + "_star-link\"><img src=\"img/star_hover.png\" alt=\"Star mail\" class=\"hidden\"/></a><a href=\"javascript:openMail('" + accountId + "','" + mail.id + "');\" title=\"Open in Gmail\">" + mail.title + "</a></span>" +
 								    "<span class=\"lowerright\"><a href=\"javascript:replyTo('" + accountId + "','" + mail.id + "');\" title=\"Reply to mail\" class=\"reply-link\"><img src=\"img/reply.png\" alt=\"Reply\" class=\"hidden\" /></a></span>" +
+                                "<span class=\"lowerright hidden\" id=\"" + mail.id + "_less-link\"><a href=\"javascript:hideBody('" + mail.id + "');\" title=\"Show summary\" class=\"less-link\"><img src=\"img/more.png\" class=\"hidden\" /></a></span>" +
                             "</div>";
                         }
                         /*"<span class=\"lowerright hidden\" id=\"" + mail.id + "_reply-link\">[<a href=\"javascript:showReply('" + mail.id + "');\" title=\"Write quick reply\">reply</a>]</span>" + */

@@ -13,7 +13,7 @@ function MailAccount(domain) {
   var mailURL = (localStorage["gc_force_ssl"] != null && localStorage["gc_force_ssl"] == "true") ? "https://" : "http://";
   mailURL += "mail.google.com";
   mailURL += (domain != null) ? "/a/" + domain + "/" : "/mail/";
-  logToConsole(mailURL);    
+  
   var inboxLabel;
   var atomLabel;
   var unreadLabel;
@@ -41,8 +41,8 @@ function MailAccount(domain) {
   this.onError;
   this.isDefault;
   
-  // Debug output
-  var verbose = true;
+  // Debug output (if enabled, might cause memory leaks)
+  var verbose = false;
   
   // Without this/that, no internal calls to onUpdate or onError can be made...
   var that = this;
@@ -459,6 +459,13 @@ function MailAccount(domain) {
     }		
   }
   
+  // Stars a thread
+  this.starThread = function(threadid) {
+    if(threadid != null) {
+      postAction({"threadid":threadid, "action":"st"});
+    }		
+  }
+  
   // Retrieves unread count
   this.getUnreadCount = function() {
     return Number(unreadCount);
@@ -496,8 +503,9 @@ function MailAccount(domain) {
   // Opens the Compose window with pre-filled data
   this.replyTo = function(mail) {
     var to = encodeURIComponent(mail.authorMail); // Escape sender email
-    var subject = encodeURIComponent(mail.title); // Escape subject string
+    var subject = mail.title; // Escape subject string
     subject = (subject.search(/^Re: /i) > -1) ? subject : "Re: " + subject; // Add 'Re: ' if not already there
+    subject = encodeURIComponent(subject);
     var replyURL = mailURL + "?view=cm&fs=1&tf=1&to=" + to + "&su=" + subject;
     if(openInTab) {
       chrome.tabs.create({url: replyURL});
