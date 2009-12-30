@@ -9,16 +9,18 @@ chrome.extension.onConnect.addListener(function(port) {
           ++new_idx;
 	      }
 	      var fg = (data.y_dir == 1);
-	      var re = /https?:\/\/([-\w\.]+)+(:\d+)?(\/([-\w\/_~\.,#%=]*(\?\S+)?)?)?/;
-        var re2 = /www\.[-\w\.]+(\/[\S]*)*/;
-	      var matches = data.values.match(re);
+	      var re = /^https?:\/\/([-\w\.]+)+(:\d+)?(\/([-\w\/_~\.,#%=]*(\?\S+)?)?)?/;
+              var re2 = /^www\.[-\w\.]+(\/[\S]*)*/;
+              // Approximate TLDs (Top Level Domains)
+//              var re3 = /[a-zA-Z]+.[a-zA-Z][a-zA-Z][a-zA-Z]?$/;
+              var re3 = /\S+\.\S\S\S?$/;
+
 	      var link;
-	      if (matches) {
-	        link = matches[0];	    
+	      if (re.test(data.values)) {
+	        link = data.values;
 	      } else {
-          matches = data.values.match(re2);
-					if (matches) {
-						link = "http://" + matches[0];
+          				if (re2.test(data.values) || re3.test(data.values)) {
+						link = "http://" + data.values;
 					} else {
 		        var engine = localStorage["search_engine"];
 	          link = engine + data.values;
