@@ -1,0 +1,7 @@
+[.]
+scm = git
+
+[dragandgo]
+repository = http://chromedragandgo.googlecode.com/svn/trunk/
+scm = svn
+path = dragandgo

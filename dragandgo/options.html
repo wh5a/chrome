@@ -1,0 +1,33 @@
+<html>
+<head><title>Drag and Go Extension Options</title></head>
+<script type="text/javascript">
+function save_options() {
+  var engine = document.getElementById("search_engine").value;  
+  localStorage["search_engine"] = engine;
+}
+
+function restore_options() {
+  var engine = localStorage["search_engine"];
+  if (!engine) {
+    engine = "http://www.google.com/search?&q=";
+  }
+  var input_text = document.getElementById("search_engine");
+  input_text.value = engine;
+}
+
+function reset_options() {
+  var engine = "http://www.google.com/search?&q=";
+  var input_text = document.getElementById("search_engine");
+  input_text.value = engine;
+}
+</script>
+
+<h3>
+Search Engine
+</h3>
+<body onload="restore_options()">
+Query string: <input type="text" id="search_engine" size=50>
+<button onclick="save_options()">Save</button>
+<button onclick="reset_options()">Reset</button>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+   "background_page": "background.htm",
+   "content_scripts": [ {
+      "js": [ "dragandgo.js" ],
+      "matches": [ "http://*/*", "https://*/*", "ftp://*/*" ],
+      "permissions": [ "tabs" ],
+      "run_at": "document_start"
+   } ],
+   "permissions" : ["tabs"],
+   "description": "Drag and Go",
+   "name": "Drag and Go",
+   "icons": {"32": "icon32.jpg", "48": "icon48.jpg", "128": "icon128.jpg"},
+   "options_page": "options.html",
+   "version": "1.3.1"
+}
