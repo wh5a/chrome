@@ -2,9 +2,10 @@
    "background_page": "background.htm",
    "content_scripts": [ {
       "js": [ "dragandgo.js" ],
-      "matches": [ "http://*/*", "https://*/*", "ftp://*/*" ],
+      "matches": [ "http://*/*", "https://*/*", "ftp://*/*", "file://*/*" ],
       "permissions": [ "tabs" ],
-      "run_at": "document_start"
+      "run_at": "document_start",
+      "all_frames": true
    } ],
    "permissions" : ["tabs"],
    "description": "Drag and Go",
