@@ -178,6 +178,7 @@ function save_options() {
     localStorage["gc_poll"] = parseInt(document.getElementById("poll").value);
     
     if(accounts.length > 0) {
+        // Instead of serialize, we could probably use the native JSON support: JSON.stringify JSON.parse
         localStorage["gc_accounts"] = serialize(accounts);
     }
     

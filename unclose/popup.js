@@ -68,11 +68,6 @@ function reset()
     delete localStorage["ClosedTab-"+i];
     clear(tabId);
   }
-  /*
-  Deep clean:
-  for (x in localStorage)
-    delete localStorage[x];
-  */
   init();
   pageNo = 0;
   window.close();
