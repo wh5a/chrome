@@ -1,3 +1,11 @@
+function getSelText()
+{
+  if (window.getSelection())
+    return window.getSelection().toString();
+  if (document.getSelection())
+    return document.getSelection().toString();
+}
+
 function dragOver (e) {
   if (start_x == -1 || start_y == -1) {
     // The dragover event is from external, keep original action.
@@ -35,10 +43,12 @@ document.addEventListener('drop', function (e) {
   }
   start_x = -1;
   start_y = -1;
-  var data = e.dataTransfer.getData('URL');
-  if (!data) {
+  var data = getSelText();
+  if (!data)
+    data = e.dataTransfer.getData('URL');
+  if (!data)
     data = e.dataTransfer.getData('Text');
-  }
+
   if (data) {
     chrome.extension.connect().postMessage({
       message: 'tab', values: data, x_dir: x_dir, y_dir: y_dir});
