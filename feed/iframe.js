@@ -10,7 +10,7 @@
 */
 
 /* The maximum number of feed items to show in the preview. */
-var maxFeedItems = 10;
+var maxFeedItems = 50;
 
 /* The maximum number of characters to show in the feed item title. */
 var maxTitleCount = 64;

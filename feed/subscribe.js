@@ -65,7 +65,9 @@ function main() {
       { 'url': 'http://www.bloglines.com/login?r=/sub/%s',
         'description': 'Bloglines' },
       { 'url': 'http://add.my.yahoo.com/rss?url=%s',
-        'description': 'My Yahoo' }];
+        'description': 'My Yahoo' },
+      { 'url': 'http://feedex.net',
+        'description': 'FeedEx' }];
 
   if (!storageEnabled) {
     // No local storage means we can't make changes to the list, so disable
@@ -124,7 +126,7 @@ function main() {
 // Sets the title for the feed.
 function setFeedTitle(title) {
   var titleTag = document.getElementById('title');
-  titleTag.textContent = "Feed for '" + title + "'";
+  titleTag.textContent = title;
 }
 
 // Handles errors during the XMLHttpRequest.
@@ -170,6 +172,10 @@ function embedAsIframe(rssText) {
 
 // Handles parsing the feed data we got back from XMLHttpRequest.
 function handleResponse() {
+  // Link to the URL
+  var feedA = document.getElementById('feedA');
+  feedA.href = feedUrl;
+  
   // Uncomment these three lines to see what the feed data looks like.
   // var itemsTag = document.getElementById('items');
   // itemsTag.textContent = req.responseText;
@@ -340,8 +346,8 @@ function validateInput() {
   var url = document.getElementById('urlText');
 
   var valid = description.value.length > 0 &&
-                url.value.length > 0 &&
-                url.value.indexOf("%s") > -1;
+                url.value.length > 0 /* &&
+                url.value.indexOf("%s") > -1; */
 
   document.getElementById('save').disabled = !valid;
 }
