@@ -13,13 +13,14 @@ chrome.extension.onConnect.addListener(function(port) {
               var re2 = /^www\.[-\w\.]+(\/[\S]*)*/;
               // Approximate TLDs (Top Level Domains)
 //              var re3 = /[a-zA-Z]+.[a-zA-Z][a-zA-Z][a-zA-Z]?$/;
-              var re3 = /\S+\.\S\S\S?$/;
+              var domain = /\S+\.\S\S\S?$/;
+              var suffix = /.+\.html?$/;
 
 	      var link;
 	      if (re.test(data.values)) {
 	        link = data.values;
 	      } else {
-          				if (re2.test(data.values) || re3.test(data.values)) {
+          				if (re2.test(data.values) || domain.test(data.values) || suffix.test(data.values)) {
 						link = "http://" + data.values;
 					} else {
 		        var engine = localStorage["search_engine"];
