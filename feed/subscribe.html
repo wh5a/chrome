@@ -1,0 +1,115 @@
+<!--
+ * Copyright (c) 2009 The Chromium Authors. All rights reserved.  Use of this
+ * source code is governed by a BSD-style license that can be found in the
+ * LICENSE file.
+-->
+<html>
+<head>
+  <title>Subscribe to feed</title>
+  <link rel="stylesheet" href="style.css" type="text/css" />
+  <link rel="stylesheet" href="subscribe.css" type="text/css" />
+  <script type="text/javascript" src="subscribe.js"></script>
+</head>
+
+<body onload="main();">
+
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td width="80" rowspan="2">
+      <img src="feed-icon-64x64.png" alt="feed-icon" align="absmiddle" />
+    </td>
+    <td height="40" valign="bottom"><b><span id="title"></span></b></td>
+  </tr>
+  <tr>
+    <td>
+      <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td align="right" valign="top">
+            <div>
+              <span style="white-space: nowrap"
+                >Subscribe to this feed using:</span>
+              <select id="readerDropdown" onChange="onSelectChanged()"></select>
+            </div>
+            <div style="margin-top:-6px; margin-right: -2px">
+              <a id="editLink" class="editLinks" href="javascript:void()"
+                 onclick="showDialog()">Edit</a>&nbsp;
+              <a id="removeLink" class="editLinks" href="javascript:void()"
+                 onclick="removeEntry()">Remove</a>&nbsp;
+            </div>
+          </td>
+          <td valign="top">
+            <button onclick="navigate();">Subscribe Now</button>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  </table>
+
+  <div id="dialogBackground">
+    <div id="dialogHBackground">
+      <div id="dialog">
+
+        <div id="dialogHeader">
+          Edit feed reader
+        </div>
+
+        <div id="dialogBody">
+
+          <div class="dialogRow">
+            &nbsp;<div class="status" id="statusMsg"></div>
+          </div>
+
+          <div class="dialogRow">
+            <div>
+              Description:
+            </div>
+            <div>
+              <input type="text" id="descriptionText" onkeyup="validateInput()">
+            </div>
+          </div>
+
+          <div class="dialogRow">
+            <div>
+              URL:
+            </div>
+            <div>
+              <input type="text" id="urlText" onkeyup="validateInput()">
+            </div>
+          </div>
+
+          <div class="dialogRow">
+            <div id="urlAssist"></div>
+          </div>
+
+          <div class="dialogRow" id="dialogContentFooter">
+            <div>
+              <input type="button" id="setDefault" value="Set as default"
+                     style="display:none" onclick="setAsDefault()">
+            </div>
+            <div>
+              <input type="button" id="save" value="Save" onclick="save()">
+            </div>
+            <div>
+              <input type="button" value="Close" onclick="hideDialog()">
+            </div>
+          </div>
+
+        </div> <!-- /dialogBody -->
+
+      </div>
+    </div>
+  </div>
+
+  <div>&nbsp;</div>
+  <div class="splitter">
+    <span class="feedUrlSpan" id="feedUrlSpan">
+      <span class="feedUrl"
+        >[ <a id="feedUrl" class="feedUrl"
+              title="The feed page currently being previewed."
+           >Feed</a> ]</span></span>
+    <span><b>Feed preview</b></span>
+  </div>
+  <div id="items"></div>
+</body>
+</html>
