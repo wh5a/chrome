@@ -26,23 +26,6 @@
   chrome.tabs.onRemoved.addListener(function(tabId) {
     delete feedData[tabId];
   });
-
-  // On Linux, popups aren't supported yet, so Chrome will call into us
-  // when the user clicks on the icon in the OmniBox.
-  chrome.pageAction.onClicked.addListener(function(tab) {
-    chrome.windows.get(tab.windowId, function(window) {
-      // We need to know if we are the active window, because the tab may
-      // have moved to another window and we don't want to execute this
-      // action multiple times.
-      if (window.focused) {
-        // Create a new tab showing the subscription page with the right
-        // feed URL.
-        var url = "subscribe.html?" +
-            encodeURIComponent(feedData[tab.id][0].href);
-        chrome.tabs.create({url: url, windowId: window.id});
-      }
-    });
-  });
 </script>
 </head>
 </html>
