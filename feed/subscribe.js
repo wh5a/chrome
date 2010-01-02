@@ -56,6 +56,14 @@ function navigate() {
 * fetches the data.
 */
 function main() {
+  // Link to the URL
+  var feedB = document.getElementById('feedB');
+  feedB.href = "view-source:" + feedUrl;
+  feedB.title = "Raw View";
+  var feedA = document.getElementById('feedA');
+  feedA.href = feedUrl;
+  feedA.title = "Nice View";
+  
   // This is the default list, unless replaced by what was saved previously.
   feedReaderList = [
       { 'url': 'http://www.google.com/reader/view/feed/%s',
@@ -172,10 +180,6 @@ function embedAsIframe(rssText) {
 
 // Handles parsing the feed data we got back from XMLHttpRequest.
 function handleResponse() {
-  // Link to the URL
-  var feedA = document.getElementById('feedA');
-  feedA.href = feedUrl;
-  
   // Uncomment these three lines to see what the feed data looks like.
   // var itemsTag = document.getElementById('items');
   // itemsTag.textContent = req.responseText;

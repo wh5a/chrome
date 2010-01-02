@@ -1,4 +1,7 @@
 function isFeed(){
+  if /^view-source:/.test(location.href)
+    return false;
+  
   // Imprecise detection
   var feedTags=["rss","feed"];
   for(var i in feedTags){
