@@ -45,9 +45,11 @@ var storageEnabled = window.localStorage != null;
 // Navigates to the reader of the user's choice (for subscribing to the feed).
 function navigate() {
   var select = document.getElementById('readerDropdown');
-  var url =
-      feedReaderList[select.selectedIndex].url.replace(
-          "%s", escape(encodeURI(feedUrl)));
+  var engine = feedReaderList[select.selectedIndex].url;
+  if (/feedex\.net/.test(engine))
+    url = feedUrl.replace(/^http(s)?:\/\//,"");
+  else url = feedUrl;
+  url = engine.replace("%s", escape(encodeURI(url)));
   document.location = url;
 }
 
@@ -74,7 +76,7 @@ function main() {
         'description': 'Bloglines' },
       { 'url': 'http://add.my.yahoo.com/rss?url=%s',
         'description': 'My Yahoo' },
-      { 'url': 'http://feedex.net',
+      { 'url': 'http://feedex.net/url/%s',
         'description': 'FeedEx' }];
 
   if (!storageEnabled) {
@@ -350,8 +352,8 @@ function validateInput() {
   var url = document.getElementById('urlText');
 
   var valid = description.value.length > 0 &&
-                url.value.length > 0 /* &&
-                url.value.indexOf("%s") > -1; */
+                url.value.length > 0 &&
+                url.value.indexOf("%s") > -1;
 
   document.getElementById('save').disabled = !valid;
 }
