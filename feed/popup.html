@@ -8,6 +8,7 @@
 <style>
   body {
     overflow-x: hidden;
+    margin: 0
   }
 
   .heading {
@@ -22,11 +23,14 @@
     font-size: small;
     vertical-align: bottom;
   }
+
+  a { text-decoration:none }
 </style>
 <script>
 function feedLink(url) {
   var feed_link = document.createElement('a');
   feed_link.href = url;
+  feed_link.title = url;
   feed_link.addEventListener("click", onClick);
   return feed_link;
 }
@@ -64,8 +68,9 @@ function main() {
         td.appendChild(img_link);
         var td2 = document.createElement('td');
         td2.appendChild(text_link);
-        tr.appendChild(td);
+        td2.align = "right";
         tr.appendChild(td2);
+        tr.appendChild(td);
         feed_list.appendChild(tr);
       }
 
