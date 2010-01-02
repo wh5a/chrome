@@ -1,5 +1,5 @@
 function isFeed(){
-  if /^view-source:/.test(location.href)
+  if (/^view-source:/.test(location.href))
     return false;
   
   // Imprecise detection
