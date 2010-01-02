@@ -12,9 +12,6 @@
 /* The maximum number of feed items to show in the preview. */
 var maxFeedItems = 50;
 
-/* The maximum number of characters to show in the feed item title. */
-var maxTitleCount = 64;
-
 window.addEventListener("message", function(e) {
   var parser = new DOMParser();
   var doc = parser.parseFromString(e.data, "text/xml");
@@ -48,10 +45,6 @@ function buildPreview(doc) {
       itemTitle = itemTitle.textContent;
     else
       itemTitle = "Unknown title";
-
-    /* Ensure max length for title. */
-    if (itemTitle.length > maxTitleCount)
-      itemTitle = itemTitle.substring(0, maxTitleCount) + "...";
 
     /* Grab the description.
        TODO(aa): Do we need to check for type=html here? */
