@@ -21,6 +21,12 @@
         });
         chrome.pageAction.show(sender.tab.id);
       }
+      if (request.msg == "feedView") {
+        var tab = sender.tab;
+        if (!tab) return;
+        var goTo = "subscribe.html?" + encodeURIComponent(request.url);
+        chrome.tabs.update(tab.id,{url:goTo});
+      }
     });
 
   chrome.tabs.onRemoved.addListener(function(tabId) {
