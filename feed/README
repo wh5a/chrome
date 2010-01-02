@@ -4,3 +4,4 @@ Changes:
 2. Link the feed icon to the feed url in the preview.
 3. Recognize feeds and show preview (conflicting with TPGoogleReader)
 4. Get expanded feed instead of summary, if possible.
+5. Support feeds with mime time text/html, e.g. ycombinator, stackoverflow.

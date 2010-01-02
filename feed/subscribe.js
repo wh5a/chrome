@@ -123,6 +123,8 @@ function main() {
   }
 
   feedUrl = decodeURIComponent(feedUrl);
+  // Some feeds have a bad mime time 'text/html', e.g. ycombinator, stackoverflow
+  req.overrideMimeType('text/xml');
   req.onload = handleResponse;
   req.onerror = handleError;
   req.open("GET", feedUrl, !synchronousRequest);
