@@ -3,3 +3,4 @@ Changes:
 1. Increase the maximum number of feed items to show in the preview from 10 to 50.
 2. Link the feed icon to the feed url in the preview.
 3. Recognize feeds and show preview (conflicting with TPGoogleReader)
+4. Get expanded feed instead of summary, if possible.
