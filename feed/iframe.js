@@ -24,6 +24,14 @@ window.addEventListener("message", function(e) {
 }, false);
 
 function buildPreview(doc) {
+  var feedTags = ["rss","feed"];
+  var xmlns = null;
+  for(var i in feedTags){
+    var elm = doc.getElementsByTagName(feedTags[i])[0];
+    if (elm) xmlns = elm.getAttribute("xmlns:content");
+    if (xmlns) break;
+  }
+  
   /* Start building the part we render inside an IFRAME. We use a table to
      ensure that items are separated vertically from each other. */
   var table = document.createElement("table");
@@ -48,7 +56,11 @@ function buildPreview(doc) {
 
     /* Grab the description.
        TODO(aa): Do we need to check for type=html here? */
-    var itemDesc = item.getElementsByTagName('description')[0];
+    var itemDesc = null;
+    if (xmlns)
+      itemDesc = item.getElementsByTagNameNS(xmlns, 'encoded')[0];
+    if (!itemDesc)
+      itemDesc = item.getElementsByTagName('description')[0];
     if (!itemDesc)
       itemDesc = item.getElementsByTagName('summary')[0];
     if (!itemDesc)

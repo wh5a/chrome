@@ -127,8 +127,6 @@ function main() {
   req.onerror = handleError;
   req.open("GET", feedUrl, !synchronousRequest);
   req.send(null);
-
-  document.getElementById('feedUrl').href = feedUrl;
 }
 
 // Sets the title for the feed.

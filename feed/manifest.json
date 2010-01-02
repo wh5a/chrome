@@ -1,4 +1,5 @@
 {
+"update_url":"http://clients2.google.com/service/update2/crx",
   "name": "RSS Subscription Extension Plus",
   "description": "Adds one-click subscription to your toolbar.",
   "version": "1.8.3",
