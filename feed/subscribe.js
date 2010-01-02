@@ -57,12 +57,12 @@ function navigate() {
 */
 function main() {
   // Link to the URL
-  var feedB = document.getElementById('feedB');
-  feedB.href = "view-source:" + feedUrl;
-  feedB.title = "Raw View";
+  // var feedB = document.getElementById('feedB');
+  // feedB.href = "view-source:" + feedUrl;
+  // feedB.title = "Raw View";
   var feedA = document.getElementById('feedA');
   feedA.href = feedUrl;
-  feedA.title = "Nice View";
+  feedA.title = feedUrl;
   
   // This is the default list, unless replaced by what was saved previously.
   feedReaderList = [

@@ -1,6 +1,7 @@
 function isFeed(){
-  if (/^view-source:/.test(location.href))
-    return false;
+  // Unfortunately we don't get to see 'view-source:' part.
+  //if (/^view-source:/.test(location.href))
+  //  return false;
   
   // Imprecise detection
   var feedTags=["rss","feed"];
