@@ -1,17 +1,21 @@
-function isFeed(){
+function isFeed(doc, stop){
   // Unfortunately we don't get to see 'view-source:' part.
   //if (/^view-source:/.test(location.href))
   //  return false;
   
-  // Imprecise detection
+  // False negatives when the server gives us an xml as html
   var feedTags=["rss","feed"];
   for(var i in feedTags){
-    var elm=document.getElementsByTagName(feedTags[i])[0];
+    var elm=doc.getElementsByTagName(feedTags[i])[0];
     if(elm&&(!elm.parentElement||elm.parentElement.tagName.toLowerCase()=="body"))
       return true;
   }
   
-  // Now try to parse the page
+  /* False positives when the html does parse as xml
+     Test case: http://intertwingly.net/blog/2008/01/22/Best-Standards-Support#c1201006277
+                http://scr.im/1yu1
+  */
+  /*
   var req = new XMLHttpRequest();
   var isF;
   req.onload = function () {
@@ -22,7 +26,17 @@ function isFeed(){
   req.open("GET", location.href, false);
   req.send();
   return isF;
+  */
+
+  // Explicitly specified as HTML, or infinite recursion entered
+  if (doc.doctype || stop) return false;
+
+  // Try to find feeds in HTML text
+  // Test case: http://x264dev.multimedia.cx/?feed=atom
+  var parser = new DOMParser();
+  var docB = parser.parseFromString(document.documentElement.innerText, "text/xml");
+  return isFeed(docB, true);
 }
 
-if(isFeed())
+if(isFeed(document))
   chrome.extension.sendRequest({msg:"feedView", url:location.href});
