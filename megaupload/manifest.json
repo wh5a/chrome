@@ -1,0 +1,17 @@
+{
+"update_url":"http://clients2.google.com/service/update2/crx",
+ "version": "2.0", 
+ "name": "MegaUpload DownloadHelper",   
+ "description": "No More Countdowns or Captchas - Automatic Downloads.",
+ "permissions": [
+    "http://*.megaupload.com/",
+    "http://*.megaporn.com/"    
+  ],
+ "background_page": "background.html",
+ "icons": { "16": "icon-16x16.png", "32": "icon-32x32.png", "48": "icon-48x48.png", "128": "icon-128x128.png"},
+ "content_scripts": [ {
+    "matches": ["http://www.megaupload.com/*", "http://www.megaporn.com/*"],
+    "js": ["megaupload.js", "59463.user.js"],
+    "run_at" : "document_end"
+ }]
+}
