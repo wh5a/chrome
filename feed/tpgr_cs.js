@@ -34,7 +34,7 @@ function isFeed(doc, stop){
   // Try to find feeds in HTML text
   // Test case: http://x264dev.multimedia.cx/?feed=atom
   var parser = new DOMParser();
-  var docB = parser.parseFromString(document.documentElement.innerText, "text/xml");
+  var docB = parser.parseFromString(doc.documentElement.innerText, "text/xml");
   return isFeed(docB, true);
 }
 
