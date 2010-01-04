@@ -8,10 +8,12 @@ function createLink(id, url) {
   return link;
 }
 
-function loadContent()
+function loadText()
 {
-  // We only handle mousemove once
-  document.removeEventListener("mousemove", loadContent, false);
+  // Don't popup if there's nothing to show
+  var n = localStorage["actualCount"];
+  if (parseInt(n) == 0)
+    window.close();
   
   content = document.getElementById("contentDiv");
   // Clear
@@ -36,7 +38,11 @@ function loadContent()
         var img = document.createElement('img');
         // Other favicon services are http://www.google.com/s2/favicons?domain=
         // img.src = "http://getfavicon.appspot.com/" + tabUrl;
-        img.src = "http://www.getfavicon.org/?url=" + tabUrl.split('/')[2]; // slower but more powerful. This service only accepts domain names.
+
+        // On load, we don't try to pull the favicons.
+        img.src = "";
+        // Save the url in alt
+        img.alt = "http://www.getfavicon.org/?url=" + tabUrl.split('/')[2]; // slower but more powerful. This service only accepts domain names.
         img.width = 16;
         img.height = 16;
         content.appendChild(img);
@@ -58,6 +64,20 @@ function loadContent()
   if (localStorage["actualCount"] > (pageNo+1) * nItems)
     document.getElementById("next").disabled = false;
   else document.getElementById("next").disabled = true;
+}
+
+function loadFavicon() {
+  // We only handle mousemove once
+  document.removeEventListener("mousemove", loadFavicon, false);
+
+  var imgs = document.getElementsByTagName("img");
+  for (i in imgs)
+    imgs[i].src = imgs[i].alt;
+}
+
+function loadContent() {
+  loadText();
+  loadFavicon();
 }
 
 function next() {
