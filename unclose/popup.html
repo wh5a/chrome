@@ -10,29 +10,15 @@
   hr { margin:4px; }
   .table {
     background-color: #ebeff9;
-    width: 100%;
+    width: 500px
   }
   a { text-decoration:none }
   body { margin: 0 }
+
 </style>
 <script src="popup.js"> </script>
 <script src="init.js"> </script>
 <script>
-
-function loadContent()
-{
-  var content = getClosed();
-  contentDiv = document.getElementById("contentDiv");
-  contentDiv.innerHTML = content;
-  if (pageNo > 0)
-    document.getElementById("prev").disabled = false;
-  else document.getElementById("prev").disabled = true;
-  if (localStorage["actualCount"] > (pageNo+1) * nItems)
-    document.getElementById("next").disabled = false;
-  else document.getElementById("next").disabled = true;
-}
-
-window.onload = loadContent;
 
 function openHome()
 {
@@ -43,6 +29,7 @@ function openHome()
   });
 }
 
+document.addEventListener("mousemove", loadContent, false);
 </script>
 
 </head>
