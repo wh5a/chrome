@@ -69,11 +69,15 @@ function loadFavicon() {
   for (i=0; i<imgs.length; i++) {
     var img = imgs[i];
     // Send the whole url to a faster but less accurate service
-    if (/^http:/.test(img.alt))
+    var domain = img.alt.match('https://[^/]*/');
+    if (domain) console.log(domain[0]);
+    if (domain)
+      img.src = "http://getfavicon.appspot.com/" + domain[0];
+    else
       img.src = "http://getfavicon.appspot.com/" + img.alt;
   }
   // After 5 seconds, we will resort to a slower but more accurate service
-  setTimeout(loadFavicon2,5000);
+  // setTimeout(loadFavicon2,5000);
 }
 
 function loadFavicon2() {

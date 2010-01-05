@@ -10,4 +10,17 @@ with a lot of nice changes:
 7. Divide tab history into 20-item pages.
 8. Favicons (needs some improvements.)
 
+To get really good favicons, we could
+a. Invoke the background page to request for the page, parse it, and retrieve the favicon on our own
+
+b. Call the fast favicon service, and compare the image with the default image.
+   If the comparison succeeds, we call the second favicon service.
+   Unfortunately, to access the image data, we still need the background page to act as the middle man.
+   This can be done by send a xhr and get the raw data, or load the image into a canvas and access it.
+   The former can be done similar to the megaupload captcha extension.
+   The latter can be done by referring to
+   http://virtuelvis.com/archives/2005/12/canvas-image-manipulation
+   https://developer.mozilla.org/en/Canvas_tutorial/Using_images
+   https://developer.mozilla.org/En/HTML/Canvas/Pixel_manipulation_with_canvas
+
 Note that tabs created before the installation of this extension will not be monitored.
