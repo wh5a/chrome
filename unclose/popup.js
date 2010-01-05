@@ -1,7 +1,8 @@
 var nItems = 20; // Items in a page
 var pageNo = 0;
 
-var defaultImgUrl = "http://getfavicon.appspot.com/default.gif";
+// Loading this image still costs us time
+//var defaultImgUrl = "http://getfavicon.appspot.com/default.gif";
 
 function createLink(id, url) {
   var link = document.createElement('a');
@@ -38,7 +39,7 @@ function loadText()
       if (/^http/.test(tabUrl)) {
         var img = document.createElement('img');
         // On load, we don't try to pull the favicons.
-        img.src = defaultImgUrl;
+        img.src = ""; //defaultImgUrl;
         // Save the url in alt
         img.alt = tabUrl;
         img.width = 16;
@@ -70,7 +71,6 @@ function loadFavicon() {
     var img = imgs[i];
     // Send the whole url to a faster but less accurate service
     var domain = img.alt.match('https://[^/]*/');
-    if (domain) console.log(domain[0]);
     if (domain)
       img.src = "http://getfavicon.appspot.com/" + domain[0];
     else
@@ -85,7 +85,7 @@ function loadFavicon2() {
   for (i=0; i<imgs.length; i++) {
     var img = imgs[i];
     // Unfortunately, the url doesn't get updated for failed requests. So this check is only true for https pages.
-    if (img.src == defaultImgUrl)
+//    if (img.src == defaultImgUrl)
       img.src = "http://www.getfavicon.org/?url=" + img.alt.split('/')[2]; // This service only accepts domain names.
   }
 }  
