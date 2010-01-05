@@ -33,8 +33,8 @@ function loadText()
     tabId = localStorage["ClosedTab-"+i];
     tabUrl = localStorage["TabList-"+tabId];
     if (tabUrl) {
-      // For security concerns, only shows favicon for http pages.
-      if (/^http:/.test(tabUrl)) {
+      // Since we are only sending domain names, favicons are not restricted to http pages only.
+      if (/^http/.test(tabUrl)) {
         var img = document.createElement('img');
         // Other favicon services are http://www.google.com/s2/favicons?domain=
         // img.src = "http://getfavicon.appspot.com/" + tabUrl;
