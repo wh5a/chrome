@@ -1,6 +1,8 @@
 var nItems = 20; // Items in a page
 var pageNo = 0;
 
+var defaultImgUrl = "http://getfavicon.appspot.com/default.gif";
+
 function createLink(id, url) {
   var link = document.createElement('a');
   link.href = "javascript:showUrl("+ id + ")";
@@ -33,16 +35,12 @@ function loadText()
     tabId = localStorage["ClosedTab-"+i];
     tabUrl = localStorage["TabList-"+tabId];
     if (tabUrl) {
-      // Since we are only sending domain names, favicons are not restricted to http pages only.
       if (/^http/.test(tabUrl)) {
         var img = document.createElement('img');
-        // Other favicon services are http://www.google.com/s2/favicons?domain=
-        // img.src = "http://getfavicon.appspot.com/" + tabUrl;
-
         // On load, we don't try to pull the favicons.
-        img.src = "";
+        img.src = defaultImgUrl;
         // Save the url in alt
-        img.alt = "http://www.getfavicon.org/?url=" + tabUrl.split('/')[2]; // slower but more powerful. This service only accepts domain names.
+        img.alt = tabUrl;
         img.width = 16;
         img.height = 16;
         content.appendChild(img);
@@ -67,17 +65,31 @@ function loadText()
 }
 
 function loadFavicon() {
-  // We only handle mousemove once
-  document.removeEventListener("mousemove", loadFavicon, false);
-
-  var imgs = document.getElementsByTagName("img");
-  for (i in imgs)
-    imgs[i].src = imgs[i].alt;
+  var imgs = document.images;
+  for (i=0; i<imgs.length; i++) {
+    var img = imgs[i];
+    // Send the whole url to a faster but less accurate service
+    if (/^http:/.test(img.alt))
+      img.src = "http://getfavicon.appspot.com/" + img.alt;
+  }
+  // After 5 seconds, we will resort to a slower but more accurate service
+  setTimeout(loadFavicon2,5000);
 }
+
+function loadFavicon2() {
+  var imgs = document.images;
+  for (i=0; i<imgs.length; i++) {
+    var img = imgs[i];
+    // Unfortunately, the url doesn't get updated for failed requests. So this check is only true for https pages.
+    if (img.src == defaultImgUrl)
+      img.src = "http://www.getfavicon.org/?url=" + img.alt.split('/')[2]; // This service only accepts domain names.
+  }
+}  
 
 function loadContent() {
   loadText();
-  loadFavicon();
+  // Delay this function a little bit in order not to halt the popup
+  setTimeout(loadFavicon, 10);
 }
 
 function next() {
