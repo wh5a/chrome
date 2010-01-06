@@ -1,6 +1,6 @@
 {
   "name": "Tab to the next",
-  "version": "1.6",
+  "version": "1.7",
   "author": "Wei Hu",
   "description": "Brings the new tab next to the current one. Also controls which tab will be selected when you close one.",
   "background_page": "background.html",
