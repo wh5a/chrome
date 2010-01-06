@@ -14,11 +14,17 @@ function isBlack() {
   return false;
 }
 
+function isTiny(img) {
+  return (img.height * img.width < 40*40);
+}
+
 function addTitle(doc) {
-  if (isBlack()) return;
+  // if (isBlack()) return;
   var imgs = doc.getElementsByTagName("img");
   for (var i=0; i<imgs.length; i++) {
     var img = imgs[i];
+    // Don't expand tiny icons
+    if (isTiny(img)) return;
     if (img.title) {
       img.onmouseover = function(ev) {
         // Restore the intended layout
