@@ -1,12 +1,11 @@
-// OK, totally ruins these sites
-var blacklist = [ /stackoverflow.com/,
-                  /serverfault.com/,
-                  /superuser.com/,
-                  /doctype.com/,
-                  /code.google.com/
-                ]
-
 function isBlack() {
+  // OK, totally ruins these sites
+  var blacklist = [ /stackoverflow.com/,
+                    /serverfault.com/,
+                    /superuser.com/,
+                    /doctype.com/,
+                    /code.google.com/
+                  ]
   var host = window.location.host;
   for (var i=0; i<blacklist.length; i++)
     if (blacklist[i].test(host))
@@ -15,11 +14,14 @@ function isBlack() {
 }
 
 function isTiny(img) {
-  return (img.height * img.width < 40*40);
+  // Ajax images seem to all return 0x0
+  var area = img.height * img.width;
+  return (area > 0 && area < 40*40);
 }
 
 function addTitle(doc) {
   // if (isBlack()) return;
+  if (!doc.getElementsByTagName) return;
   var imgs = doc.getElementsByTagName("img");
   for (var i=0; i<imgs.length; i++) {
     var img = imgs[i];
