@@ -95,12 +95,13 @@ chrome.tabs.onRemoved.addListener(function(tabId) {
         console.error(tabs);
         console.error(cachedTabs);
       }
-      else if (cachedTabs[closedIndex].selected) { // Change focus to the left or right only if the tab being closed was focused
+      // Change focus to the left or right only if the tab being closed was focused, and the window had >1 tabs
+      else if (cachedTabs[closedIndex].selected && cachedTabs.length>1) {
         var nextIndex = closedIndex; // Select right
         if (close == 1 && nextIndex > 0) // Select left
           nextIndex -= 1;
-        if (nextIndex > tabs.length - 1) nextIndex = tabs.length - 1;
-        chrome.tabs.update(tabs[nextIndex].id, {
+        if (nextIndex > cachedTabs.length - 1) nextIndex = cachedTabs.length - 1;
+        chrome.tabs.update(cachedTabs[nextIndex].id, {
           selected: true
         }, updateCachedTabs);
       }
