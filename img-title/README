@@ -1,0 +1,14 @@
+Fork of xkcdAlt https://chrome.google.com/extensions/detail/enpodcpdpfdedhkgjdhlbjaknfkcelpp
+
+This extension is NOT limited to xkcd only and shows titles for ALL
+images. This allows us to browse other popular comic sites such as
+abstrusegoose.com, thedoghousediaries.com, cowbirdsinlove.com. Even
+better, this extension listens to DOM events, so it works on AJAX
+sites like Google Reader.
+
+All images with titles will have the titles shown in bold under
+them. If this changes the page layout badly, you can hover mouse over
+that image, to restore the layout for that image. That is, the title
+text will removed, and you get the hover-over text, as if nothing happened.
+
+Collaboration is welcomed to support user opitons.
