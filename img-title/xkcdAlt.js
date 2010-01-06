@@ -1,6 +1,23 @@
+// OK, totally ruins these sites
+var blacklist = [ /stackoverflow.com/,
+                  /serverfault.com/,
+                  /superuser.com/,
+                  /doctype.com/,
+                  /code.google.com/
+                ]
+
+function isBlack() {
+  var host = window.location.host;
+  for (var i=0; i<blacklist.length; i++)
+    if (blacklist[i].test(host))
+      return true;
+  return false;
+}
+
 function addTitle(doc) {
+  if (isBlack()) return;
   var imgs = doc.getElementsByTagName("img");
-  for (i=0; i<imgs.length; i++) {
+  for (var i=0; i<imgs.length; i++) {
     var img = imgs[i];
     if (img.title) {
       img.onmouseover = function(ev) {
