@@ -24,14 +24,16 @@ window.addEventListener("message", function(e) {
 }, false);
 
 function buildPreview(doc) {
-  var feedTags = ["rss","feed"];
-  var xmlns = null;
-  for(var i in feedTags){
-    var elm = doc.getElementsByTagName(feedTags[i])[0];
-    if (elm) {
-      xmlns = elm.getAttribute("xmlns:content");
-      break;
-    }
+  var isAtom = false;
+  var elm = doc.getElementsByTagName("rss")[0];
+  if (elm) // RSS
+    var xmlns = elm.getAttribute("xmlns:content");
+  else {
+    elm = doc.getElementsByTagName("feed")[0];
+    if (elm) // Atom
+      isAtom = true;
+    else
+      console.error("Unknow feed format");
   }
   
   /* Start building the part we render inside an IFRAME. We use a table to
@@ -56,11 +58,14 @@ function buildPreview(doc) {
     else
       itemTitle = "Unknown title";
 
-    /* Grab the description.
-       TODO(aa): Do we need to check for type=html here? */
+    /* Try to get the full content first. */
     var itemDesc = null;
-    if (xmlns)
+    if (isAtom)
+      itemDesc = item.getElementsByTagName('content')[0];
+    else if (xmlns)
       itemDesc = item.getElementsByTagNameNS(xmlns, 'encoded')[0];
+
+    /* Get the summary */
     if (!itemDesc)
       itemDesc = item.getElementsByTagName('description')[0];
     if (!itemDesc)
