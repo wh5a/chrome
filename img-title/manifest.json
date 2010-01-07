@@ -3,7 +3,7 @@
   "description":"Read title text under images.",
   "content_scripts":[
     {
-      "matches":["http://*/*", "https://*/*", "file://*/*"],
+      "matches":["http://*/*", "https://*/*"],
       "js":["xkcdAlt.js"]
     }
   ],
