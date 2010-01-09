@@ -10,7 +10,7 @@
 
 /*compact*/
 .compactON #main { top: 0 !important; background-color: #FFF }
-.compactON #search { top: 4px !important; left: auto !important; right: 200px !important }
+.compactON #search { top: 4px !important; left: auto !important; right: 260px !important }
 .compactON #search div.search-restrict-contents { padding: 1px !important }
 .compactON #search div.search-restrict-contents input { border-width: 0 !important }
 
