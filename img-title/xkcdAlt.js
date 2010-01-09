@@ -26,7 +26,7 @@ function addTitle(doc) {
   for (var i=0; i<imgs.length; i++) {
     var img = imgs[i];
     // Don't expand tiny icons
-    if (isTiny(img)) return;
+    if (isTiny(img)) continue;
     if (img.title) {
       img.onmouseover = function(ev) {
         // Restore the intended layout
