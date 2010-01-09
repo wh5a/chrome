@@ -1,10 +1,6 @@
 function isBlack() {
-  // OK, totally ruins these sites
-  var blacklist = [ /stackoverflow.com/,
-                    /serverfault.com/,
-                    /superuser.com/,
-                    /doctype.com/,
-                    /code.google.com/
+  // OK, totally ruins these sites, even with the tiny image check
+  var blacklist = [ /douban.com/
                   ]
   var host = window.location.host;
   for (var i=0; i<blacklist.length; i++)
@@ -20,11 +16,16 @@ function isTiny(img) {
 }
 
 function addTitle(doc) {
-  // if (isBlack()) return;
+  if (isBlack()) return;
   if (!doc.getElementsByTagName) return;
   var imgs = doc.getElementsByTagName("img");
   for (var i=0; i<imgs.length; i++) {
     var img = imgs[i];
+    /*
+    console.log(img.src);
+    if (img.title) console.log(img.title);
+    console.log(img.height*img.width);
+    */
     // Don't expand tiny icons
     if (isTiny(img)) continue;
     if (img.title) {

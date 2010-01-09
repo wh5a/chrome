@@ -11,4 +11,7 @@ them. If this changes the page layout badly, you can hover mouse over
 that image, to restore the layout for that image. That is, the title
 text will removed, and you get the hover-over text, as if nothing happened.
 
+Known issues: the inserted text node is given its associated img's src
+as id, which is not guaranteed to be unique, but usually is for large images.
+
 Collaboration is welcomed to support user opitons.
