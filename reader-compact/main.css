@@ -1,0 +1,31 @@
+/*
+** Google Reader Compact
+**
+** Author........ : amio
+** Created....... : Dec 16th, 2009
+** Updated....... : Dec 17th, 2009
+** Website....... : http://www.amio.cn/blog/
+**
+*/
+
+/*compact*/
+.compactON #main { top: 0 !important; background-color: #FFF }
+.compactON #search { top: 4px !important; left: auto !important; right: 200px !important }
+.compactON #search div.search-restrict-contents { padding: 1px !important }
+.compactON #search div.search-restrict-contents input { border-width: 0 !important }
+
+/*compact setting page*/
+#settings-frame { top: 65px !important; background-color: #FFF }
+.compactON #settings-frame { top: 0 !important; background-color: #FFF }
+
+#search-input { width: 150px !important }
+
+/*switch button*/
+#chrome-view-links { margin-right: 20px }
+#compactButton { display: block; position: absolute; top: 6px; right: 7px; height: 15px; width: 15px; z-index: 999; cursor: pointer }
+#compactButton { border: 1px solid #6694E3 }
+#compactButton p { background-color: #6694E3; height: 7px }
+.compactON  #compactButton p { margin: 0 }
+.compactOFF  #compactButton p { margin: 1px }
+
+.entry .entry-body { max-width: 999px !important }
