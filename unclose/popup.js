@@ -93,7 +93,7 @@ function loadFavicon2() {
 function loadContent() {
   loadText();
   // Delay this function a little bit in order not to halt the popup
-  setTimeout(loadFavicon, 10);
+  setTimeout(loadFavicon, 500);
 }
 
 function next() {
