@@ -16,17 +16,14 @@ function isTiny(img) {
 function processImg(img) {
   // Don't expand tiny icons
   if (!isTiny(img) && img.title) {
-    img.onmouseover = function(ev) {
+    img.onmouseover = function() {
       // Restore the intended layout
-      var img = ev.target;
       var imgParent=img.parentNode;
       var div = document.getElementById(img.src);
       img.title = div.textContent;
       imgParent.removeChild(div);
     };
-    img.onmouseout = function(ev) {
-      if (ev)
-        img = ev.target;
+    img.onmouseout = function() {
       var imgParent=img.parentNode;
       var afterImg=img.nextSibling;
       var newNode=document.createElement("div");
@@ -52,14 +49,12 @@ function ajaxTitle(doc) {
 //  if (isBlack()) return;
   if (!doc.getElementsByTagName) return;
   var imgs = doc.getElementsByTagName("img");
-  for (var i=0; i<imgs.length; i++) {
-    var img = imgs[i];
+  for (var i=0; i<imgs.length; i++)
     // Do not process the image right away because its height and width are uninitialized.
     // Instead, do it on load.
-    img.addEventListener('load', function(ev) {
+    imgs[i].addEventListener('load', function(ev) {
       processImg(ev.target);
     });
-  }
 }
 
 document.body.addEventListener('DOMNodeInserted', function(ev) {
