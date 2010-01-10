@@ -1,6 +1,6 @@
 function isBlack() {
   // OK, totally ruins these sites, even with the tiny image check
-  var blacklist = [
+  var blacklist = [/live.com/
                   ]
   var host = window.location.host;
   for (var i=0; i<blacklist.length; i++)
@@ -16,6 +16,9 @@ function isTiny(img) {
 function processImg(img) {
   // Don't expand tiny icons
   if (!isTiny(img) && img.title) {
+    // Ignore duplicate images
+    if (document.getElementById(img.src))
+      return;
     img.onmouseover = function() {
       // Restore the intended layout
       var imgParent=img.parentNode;
@@ -57,8 +60,10 @@ function ajaxTitle(doc) {
     });
 }
 
-document.body.addEventListener('DOMNodeInserted', function(ev) {
-  ajaxTitle(ev.target);
-});
+if (!isBlack()) {
+  document.body.addEventListener('DOMNodeInserted', function(ev) {
+    ajaxTitle(ev.target);
+  });
 
-docTitle();
+  docTitle();
+}

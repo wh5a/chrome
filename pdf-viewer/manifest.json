@@ -1,0 +1,14 @@
+{
+  "name": "Docs PDF/PowerPoint Viewer (http only)",
+  "version": "1.5.3",
+  "description": "Automatically previews pdfs, powerpoint presentations, and other documents in Google Docs Viewer.",
+  "icons": {"16": "icon16.gif",
+	    "32": "icon32.gif",
+	    "48": "icon48.gif",
+	    "128": "icon128.gif"},
+  "content_scripts": [
+    {"matches": ["http://*/*"],
+     "js": ["jquery.min.js", "content.js"],
+     "css": ["content.css"]}
+  ]
+}

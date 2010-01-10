@@ -11,7 +11,11 @@ them. If this changes the page layout badly, you can hover mouse over
 that image, to restore the layout for that image. That is, the title
 text will removed, and you get the hover-over text, as if nothing happened.
 
-Known issues: the inserted text node is given its associated img's src
-as id, which is not guaranteed to be unique, but usually is for large images.
+We use two heuristics to avoid breaking sites:
+1. Many pages use tiny icons as buttons, and place a title on it to
+explain the use. Therefore we only affect images larger than 40x40.
+2. Live.com uses a large transparent image to decorate elements and
+place titles on it. On the other hand, stand-alone images are usually
+unique. We ignore duplicate images.
 
-Collaboration is welcomed to support user opitons.
+And as a last defense, we use a blacklist to disable this extension for certain sites.

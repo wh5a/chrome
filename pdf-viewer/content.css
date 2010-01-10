@@ -1,0 +1,38 @@
+#gview-cmenu {
+  position: absolute;
+  border: 1px solid #ccc;
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  list-style-type: none;
+  -webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, .5);
+}
+
+#gview-cmenu:focus {
+  outline: none;
+}
+
+.gview-cmenu-item {
+  margin: 0;
+  padding: 5px 7px;
+  cursor: default;
+  font-size: 13px;
+  font-family: arial, san-serif;
+  color: #000;
+  -webkit-user-select: none;
+}
+
+.gview-cmenu-item:hover {
+  background-color: #F0F7F9;
+}
+
+.gview-cmenu-item:first-child {
+  border-bottom: 1px solid #ddd;
+}
+
+.gview-hidden {
+  display: none;
+}
