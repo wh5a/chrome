@@ -1,6 +1,6 @@
 function isBlack() {
   // OK, totally ruins these sites, even with the tiny image check
-  var blacklist = [ /douban.com/
+  var blacklist = [
                   ]
   var host = window.location.host;
   for (var i=0; i<blacklist.length; i++)
@@ -10,53 +10,60 @@ function isBlack() {
 }
 
 function isTiny(img) {
-  // Ajax images seem to all return 0x0
-  var area = img.height * img.width;
-  return (area > 0 && area < 40*40);
+  return img.height * img.width < 40 * 40;
 }
 
-function addTitle(doc) {
-  if (isBlack()) return;
+function processImg(img) {
+  // Don't expand tiny icons
+  if (!isTiny(img) && img.title) {
+    img.onmouseover = function(ev) {
+      // Restore the intended layout
+      var img = ev.target;
+      var imgParent=img.parentNode;
+      var div = document.getElementById(img.src);
+      img.title = div.textContent;
+      imgParent.removeChild(div);
+    };
+    img.onmouseout = function(ev) {
+      if (ev)
+        img = ev.target;
+      var imgParent=img.parentNode;
+      var afterImg=img.nextSibling;
+      var newNode=document.createElement("div");
+      newNode.appendChild(document.createElement("br"));
+      newNode.appendChild(document.createTextNode(img.title));
+      newNode.setAttribute("style","font-weight:bold" /* "color: red" */);
+      newNode.setAttribute("id",img.src);
+      imgParent.insertBefore(newNode,afterImg);
+      img.removeAttribute("title");
+    };
+    img.onmouseout();
+  }
+}
+
+function docTitle() {
+//  if (isBlack()) return;
+  var imgs = document.images;
+  for (var i=0; i<imgs.length; i++)
+    processImg(imgs[i]);
+}
+
+function ajaxTitle(doc) {
+//  if (isBlack()) return;
   if (!doc.getElementsByTagName) return;
   var imgs = doc.getElementsByTagName("img");
   for (var i=0; i<imgs.length; i++) {
     var img = imgs[i];
-    /*
-    console.log(img.src);
-    if (img.title) console.log(img.title);
-    console.log(img.height*img.width);
-    */
-    // Don't expand tiny icons
-    if (isTiny(img)) continue;
-    if (img.title) {
-      img.onmouseover = function(ev) {
-        // Restore the intended layout
-        var img = ev.target;
-        var imgParent=img.parentNode;
-        var div = document.getElementById(img.src);
-        img.title = div.textContent;
-        imgParent.removeChild(div);
-      };
-      img.onmouseout = function(ev) {
-        if (ev)
-          img = ev.target;
-        var imgParent=img.parentNode;
-        var afterImg=img.nextSibling;
-        var newNode=document.createElement("div");
-        newNode.appendChild(document.createElement("br"));
-        newNode.appendChild(document.createTextNode(img.title));
-        newNode.setAttribute("style","font-weight:bold" /* "color: red" */);
-        newNode.setAttribute("id",img.src);
-        imgParent.insertBefore(newNode,afterImg);
-        img.removeAttribute("title");
-      };
-      img.onmouseout();
-    }
+    // Do not process the image right away because its height and width are uninitialized.
+    // Instead, do it on load.
+    img.addEventListener('load', function(ev) {
+      processImg(ev.target);
+    });
   }
 }
 
 document.body.addEventListener('DOMNodeInserted', function(ev) {
-  addTitle(ev.target);
+  ajaxTitle(ev.target);
 });
 
-addTitle(document);
+docTitle();
