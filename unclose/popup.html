@@ -3,54 +3,82 @@
 <head>
 <style type="text/css">
   #contentDiv {
-    width: 500px;
+    width: 450px;
     line-height: 95%;
-    text-align: right
+    text-align: left;
   }
-  hr { margin:4px; }
   .table {
-    background-color: #ebeff9;
-    width: 500px
+    width: 450px
   }
-  a { text-decoration:none }
+  img{vertical-align:top;margin: 0 5px 0 0;}
+  
+  #contentDiv div { 
+    color:#000000; 
+    text-decoration:none;
+    margin:2px;
+    padding:2px;
+    background:#F6F7FF;
+  cursor: pointer;
+  -moz-border-radius: 4px;
+  border-radius:4px;
+ }
+  #contentDiv div:hover { 
+    background:#E4E7FF;
+ }
+  #contentDiv div a{ 
+    display:inline-block;
+    width:300px;
+    margin: 3px 0 3px 0;
+    overflow:hidden;
+  }
+  #contentDiv div span,b{ 
+    padding: 3px 0 0 0;
+    vertical-align:top;
+  }
+  #contentDiv div span{ 
+       margin: 0 0 0 10px;
+  }
+button {
+  color:#6791DA;
+  background:#E5ECFF;
+  border:1px solid #E5ECFF;
+  padding:0px 10px 0px 10px;
+  text-align:center;
+  position:relative;
+  vertical-align:baseline;
+  text-decoration:none !important;
+  cursor: pointer;
+  -moz-border-radius: 4px;
+  border-radius:4px;
+}
+button:hover{
+  color: #000 !important;
+  background:#BCCAEB;
+  border-color: #80A2FF !important;
+}
+
   body {
     margin: 0;
     font-family: sans-serif;
+    font-size:10px;
+    -moz-user-select: none;
   }
 
 </style>
 <script src="popup.js"> </script>
 <script src="init.js"> </script>
-<script>
-
-function openHome()
-{
-  chrome.tabs.getSelected(null, function(tab) {
-    chrome.tabs.create({"url":'http://github.com/wh5a/chrome/tree/master/unclose',
-                        "index" : tab.index + 1});
-    window.close();
-  });
-}
-
-</script>
 
 </head>
-<body onload="loadContent()">
+<body onload="loadContent()" onselectstart="return false;">
   <div id="contentDiv"> </div>
   <table class="table" cellspacing="0" cellpadding="0" border="0" frame="void">
     <tr>
       <td>
-        <button onclick="reset()">Reset</button>
-      </td>
-      <td>
         <button id="prev" onclick="prev()">&lt;</button>
-      </td>
-      <td>
         <button id="next" onclick="next()">&gt;</button>
       </td>
       <td style="text-align: right">
-        <A href="javascript:openHome()" title="http://github.com/wh5a/chrome/tree/master/unclose">Homepage
-        </a>
+        <button onclick="reset()">Clear</button>
       </td>
     </tr>
   </table>

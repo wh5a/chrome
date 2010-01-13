@@ -20,7 +20,10 @@ chrome.tabs.onRemoved.addListener(function(tabId, info)  {
   var url = localStorage["TabList-"+tabId];
   var re = /^(http:|https:|ftp:|file:)/;
   if (url && re.test(url)) {
+    var digital = new Date();
+
     localStorage["ClosedTab-"+localStorage["closeCount"]] = tabId;
+    localStorage["ClosedTabTime-"+localStorage["closeCount"]] = digital.getTime();
     localStorage["closeCount"] ++;
     localStorage["actualCount"] ++;
     setBadgeText();

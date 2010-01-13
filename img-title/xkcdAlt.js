@@ -1,6 +1,8 @@
 function isBlack() {
   // OK, totally ruins these sites, even with the tiny image check
-  var blacklist = [/live.com/
+  var blacklist = [/live.com/,
+                   /stackoverflow.com/,
+                   /klocwork.com/
                   ]
   var host = window.location.host;
   for (var i=0; i<blacklist.length; i++)

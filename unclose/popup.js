@@ -5,8 +5,8 @@ var pageNo = 0;
 //var defaultImgUrl = "http://getfavicon.appspot.com/default.gif";
 
 function createLink(id, url) {
-  var link = document.createElement('a');
-  link.href = "javascript:showUrl("+ id + ")";
+  var link = document.createElement('div');
+  link.onclick = function(){showUrl(id);};
   link.title = url;
   return link;
 }
@@ -34,8 +34,13 @@ function loadText()
   for (j = 0; i>=0 && j<nItems; i --)
   {
     tabId = localStorage["ClosedTab-"+i];
+    tabTime = localStorage["ClosedTabTime-"+i];
     tabUrl = localStorage["TabList-"+tabId];
     if (tabUrl) {
+      // Create a link node and the anchor encapsulating it.
+      var text_link = createLink(tabId, tabUrl);
+      
+
       if (/^http/.test(tabUrl)) {
         var img = document.createElement('img');
         // On load, we don't try to pull the favicons.
@@ -44,25 +49,42 @@ function loadText()
         img.alt = tabUrl;
         img.width = 16;
         img.height = 16;
-        content.appendChild(img);
+        text_link.appendChild(img);
       }
+      var textdiv = document.createElement('a');
+      textdiv.innerHTML = " " + localStorage["TabTitle-"+tabId]; 
+      text_link.appendChild(textdiv);
+      var textdiv2 = document.createElement('span');
+      var timeTextz='';
+      
+      var nowtime = new Date();
+      var milliseconds2 = nowtime.getTime(); 
+      var difference = milliseconds2 - tabTime; 
+      var hoursDifference = Math.floor(difference/1000/60/60); 
+      difference = difference - hoursDifference*1000*60*60 
+      var minutesDifference = Math.floor(difference/1000/60); 
+      difference = difference - minutesDifference*1000*60 
+      var secondsDifference = Math.floor(difference/1000); 
+      // This next line below looks for entries over a day old 
 
-      // Create a link node and the anchor encapsulating it.
-      var text_link = createLink(tabId, tabUrl);
-      text_link.appendChild(document.createTextNode(" " + localStorage["TabTitle-"+tabId]));
+      if ( hoursDifference < 1 &&  minutesDifference < 1 &&secondsDifference < 60) timeTextz = '<b>'+ secondsDifference + 's</b> ago'; 
+      else if (hoursDifference < 1) timeTextz = '<b>'+ minutesDifference + ' min</b> ago'; 
+      else if (hoursDifference < 4) timeTextz= '<b>' + hoursDifference + 'h ' + minutesDifference + 'min</b> ago'; 
+      else if (hoursDifference < 24) timeTextz='<b>' + hoursDifference + 'h</b> ago'; 
+      textdiv2.innerHTML=timeTextz;
+      text_link.appendChild(textdiv2);
+      
       content.appendChild(text_link);
-
-      content.appendChild(document.createElement('hr'));
       j++;
     }
   }
 
   if (pageNo > 0)
-    document.getElementById("prev").disabled = false;
-  else document.getElementById("prev").disabled = true;
+    document.getElementById("prev").style.visibility="visible";
+  else document.getElementById("prev").style.visibility="hidden";
   if (localStorage["actualCount"] > (pageNo+1) * nItems)
-    document.getElementById("next").disabled = false;
-  else document.getElementById("next").disabled = true;
+    document.getElementById("next").style.visibility="visible";
+  else document.getElementById("next").style.visibility="hidden";
 }
 
 function loadFavicon() {
