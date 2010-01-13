@@ -2,6 +2,9 @@ function isFeed(doc, stop){
   // Unfortunately we don't get to see 'view-source:' part.
   //if (/^view-source:/.test(location.href))
   //  return false;
+
+  // Is .rdf? Test case: http://cielonegro.org/Feed.rdf
+  if (/\.rdf/.test(document.URL)) return true;
   
   // False negatives when the server gives us an xml as html
   var feedTags=["rss","feed"];

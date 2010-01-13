@@ -7,6 +7,7 @@ window.addEventListener("focus", findFeeds);
 
 function findFeeds() {
   // Find all the RSS link elements.
+  // Why fail? http://cielonegro.org/
   var result = document.evaluate(
       '//link[@rel="alternate"][contains(@type, "rss") or ' +
       'contains(@type, "atom") or contains(@type, "rdf")]',
