@@ -67,10 +67,11 @@ function loadText()
       var secondsDifference = Math.floor(difference/1000); 
       // This next line below looks for entries over a day old 
 
-      if ( hoursDifference < 1 &&  minutesDifference < 1 &&secondsDifference < 60) timeTextz = '<b>'+ secondsDifference + 's</b> ago'; 
-      else if (hoursDifference < 1) timeTextz = '<b>'+ minutesDifference + ' min</b> ago'; 
-      else if (hoursDifference < 4) timeTextz= '<b>' + hoursDifference + 'h ' + minutesDifference + 'min</b> ago'; 
-      else if (hoursDifference < 24) timeTextz='<b>' + hoursDifference + 'h</b> ago'; 
+      if ( hoursDifference < 1 &&  minutesDifference < 1 &&secondsDifference < 60) timeTextz = '<b>'+ secondsDifference + ' sec</b>'; 
+      else if (hoursDifference < 1 && minutesDifference < 10) timeTextz = '<b>'+ minutesDifference + ' min</b>'; 
+      else if (hoursDifference < 1) timeTextz = '<b>'+ minutesDifference + ' min</b>'; 
+      else if (hoursDifference < 4) timeTextz= '<b>' + hoursDifference + 'hr ' + minutesDifference + 'm</b>'; 
+      else if (hoursDifference < 24) timeTextz='<b>' + hoursDifference + ' hr</b>'; 
       textdiv2.innerHTML=timeTextz;
       text_link.appendChild(textdiv2);
       

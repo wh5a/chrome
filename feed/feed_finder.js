@@ -7,7 +7,7 @@ window.addEventListener("focus", findFeeds);
 
 function findFeeds() {
   // Find all the RSS link elements.
-  // Why fail? http://cielonegro.org/
+  // Why fail? http://cielonegro.org/  But if I save it and open it locally, the feed is found.
   var result = document.evaluate(
       '//link[@rel="alternate"][contains(@type, "rss") or ' +
       'contains(@type, "atom") or contains(@type, "rdf")]',
