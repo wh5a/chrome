@@ -3,9 +3,6 @@ function isFeed(doc, stop){
   //if (/^view-source:/.test(location.href))
   //  return false;
 
-  // Is .rdf? Test case: http://cielonegro.org/Feed.rdf
-  if (/\.rdf/.test(document.URL)) return true;
-  
   // False negatives when the server gives us an xml as html
   var feedTags=["rss","feed"];
   for(var i in feedTags){
@@ -34,6 +31,9 @@ function isFeed(doc, stop){
   // Explicitly specified as HTML, or infinite recursion entered
   if (doc.doctype || stop) return false;
 
+  // Is .rdf? Test case: http://cielonegro.org/Feed.rdf
+  if (/\.rdf/.test(document.URL)) return true;
+  
   // Try to find feeds in HTML text
   // Test case: http://x264dev.multimedia.cx/?feed=atom
   var parser = new DOMParser();
