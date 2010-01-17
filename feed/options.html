@@ -83,7 +83,6 @@ body>* {
 }
 
 .dialogRow {
-  margin-left: -24px;
   width: 100%;
   -webkit-box-orient: horizontal;
   -webkit-box-pack: end;
@@ -109,7 +108,7 @@ body>* {
 <script>
 
   // Various text messages within the edit dialog.
-  var assistText = "Insert %s in the URL where the feed url should appear.";
+  var assistText = "Insert %s in the URL where the feed url should appear. <br>Use %S instead, if the http:// part should be removed first.";
 
   // Specifies the index of the item we are editing or -1 if adding new.
   var editingIndex = -1;
@@ -250,7 +249,7 @@ function removeReader() {
 * Shows the Edit Feed Reader dialog.
 */
 function showDialog() {
-  document.getElementById('urlAssist').innerText = assistText;
+  document.getElementById('urlAssist').innerHTML = assistText;
   document.getElementById('save').disabled = true;
 
   // Show the dialog box.
@@ -276,7 +275,7 @@ function validateInput() {
 
   var valid = description.value.length > 0 &&
                 url.value.length > 0 &&
-                url.value.indexOf("%s") > -1;
+                (url.value.indexOf("%s") > -1 || url.value.indexOf("%S") > -1);
 
   document.getElementById('save').disabled = !valid;
 }

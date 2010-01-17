@@ -38,10 +38,7 @@ var feedReaderList;
 function navigate() {
   var select = document.getElementById('readerDropdown');
   var engine = feedReaderList[select.selectedIndex].url;
-  if (/feedex\.net/.test(engine))
-    url = feedUrl.replace(/^http(s)?:\/\//,"");
-  else url = feedUrl;
-  url = engine.replace("%s", escape(encodeURI(url)));
+  url = getReaderWithUrl(engine, feedUrl);
 
   // Before we navigate, see if we want to skip this step in the future...
   if (storageEnabled) {

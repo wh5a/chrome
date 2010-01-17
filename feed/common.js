@@ -1,6 +1,16 @@
 // Whether we can modify the list of readers.
 var storageEnabled = window.localStorage != null;
 
+function getReaderWithUrl(engine, feedUrl) {
+  if (engine.indexOf("%S") > -1) {
+    var url = feedUrl.replace(/^http(s)?:\/\//,"");
+    url = engine.replace("%S", escape(encodeURI(url)));
+    return url;
+  }
+  var url = engine.replace("%s", escape(encodeURI(feedUrl)));
+  return url;
+}
+
 /**
 *  Returns the default list of feed readers.
 */
@@ -19,7 +29,7 @@ function defaultReaderList() {
     { 'url': 'http://add.my.yahoo.com/rss?url=%s',
       'description': 'My Yahoo'
     },
-    { 'url': 'http://feedex.net/url/%s',
+    { 'url': 'http://feedex.net/url/%S',
       'description': 'FeedEx'
     }
   ];
