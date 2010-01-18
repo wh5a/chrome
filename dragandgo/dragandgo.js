@@ -25,6 +25,8 @@ start_x = -1;
 start_y = -1;
 document.addEventListener('dragstart', dragStart, false);
 document.addEventListener('dragover', dragOver, false);
+// The 'drop' event isn't fired any more in svn trunk?
+// 'dragend' works but doesn't fire for link drags?
 document.addEventListener('dragend', function (e) {
   if (start_x == -1 || start_y == -1) {
     // The drop event is from external, keep original action.
