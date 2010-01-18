@@ -25,7 +25,7 @@ start_x = -1;
 start_y = -1;
 document.addEventListener('dragstart', dragStart, false);
 document.addEventListener('dragover', dragOver, false);
-document.addEventListener('drop', function (e) {
+document.addEventListener('dragend', function (e) {
   if (start_x == -1 || start_y == -1) {
     // The drop event is from external, keep original action.
     return true;
