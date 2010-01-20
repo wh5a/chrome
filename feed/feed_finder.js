@@ -1,15 +1,13 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2010 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 findFeeds();
-window.addEventListener("focus", findFeeds);
 
 function findFeeds() {
   // Find all the RSS link elements.
-  // Why fail? http://cielonegro.org/  But if I save it and open it locally, the feed is found.
   var result = document.evaluate(
-      '//link[@rel="alternate"][contains(@type, "rss") or ' +
+      '//*[local-name()="link"][@rel="alternate"][contains(@type, "rss") or ' +
       'contains(@type, "atom") or contains(@type, "rdf")]',
       document, null, 0, null);
 
