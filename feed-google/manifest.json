@@ -1,0 +1,25 @@
+{
+"update_url":"http://clients2.google.com/service/update2/crx",
+  "name": "RSS Subscription Extension (by Google)",
+  "description": "Adds one-click subscription to your toolbar.",
+  "version": "1.9.1",
+  "permissions": [
+    "tabs",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background_page": "background.html",
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["feed_finder.js"]
+    }
+  ],
+  "icons": { "128": "feed-icon-128x128.png" },
+  "page_action": {
+    "default_title": "Subscribe to this feed",
+    "default_icon": "feed-icon-16x16.png",
+    "popup": "popup.html"
+  }
+}
