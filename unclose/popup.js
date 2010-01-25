@@ -144,7 +144,17 @@ function showUrl(tabId) {
 
 function reset()
 {
-  init();
+  // Shallow clean: only forgets history about closed tabs
+  for(i = localStorage["closeCount"]-1; i >= 0; i--)
+  {
+    tabId = localStorage["ClosedTab-"+i];
+    delete localStorage["ClosedTab-"+i];
+    delete localStorage["ClosedTabTime-"+i];
+    clear(tabId);
+  }
+
+  initialize();
+
   pageNo = 0;
   window.close();
 }

@@ -12,16 +12,16 @@ function setBadgeText() {
     chrome.browserAction.setBadgeText({text:""});
 }
 
-function init()
-{	
-  for(i = localStorage["closeCount"]-1; i >= 0; i--)
-  {
-    tabId = localStorage["ClosedTab-"+i];
-    delete localStorage["ClosedTab-"+i];
-    delete localStorage["ClosedTabTime-"+i];
-    clear(tabId);
-  }
+function initialize() {
   localStorage["closeCount"] = 0;
   localStorage["actualCount"] = 0;
   setBadgeText();
+}
+
+function init()
+{
+  // Deep clean: clear localStorage otherwise we get old history from previous sessions
+  localStorage.clear();
+
+  initialize();
 }
