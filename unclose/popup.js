@@ -144,12 +144,6 @@ function showUrl(tabId) {
 
 function reset()
 {
-  for(i = localStorage["closeCount"]-1; i >= 0; i--)
-  {
-    tabId = localStorage["ClosedTab-"+i];
-    delete localStorage["ClosedTab-"+i];
-    clear(tabId);
-  }
   init();
   pageNo = 0;
   window.close();

@@ -14,6 +14,13 @@ function setBadgeText() {
 
 function init()
 {	
+  for(i = localStorage["closeCount"]-1; i >= 0; i--)
+  {
+    tabId = localStorage["ClosedTab-"+i];
+    delete localStorage["ClosedTab-"+i];
+    delete localStorage["ClosedTabTime-"+i];
+    clear(tabId);
+  }
   localStorage["closeCount"] = 0;
   localStorage["actualCount"] = 0;
   setBadgeText();

@@ -1,6 +1,6 @@
 {
   "name": "UndoCloseTab",
-  "version": "3.52",
+  "version": "3.60",
   "author": "MK & Wei Hu & Xerios",
   "description": "Undo your closed tabs",
   "background_page": "background.html",    
