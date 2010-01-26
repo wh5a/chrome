@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+<script type="text/javascript" src="i18n.js"></script> 
+<script type="text/javascript" src="mailaccount.class.js"></script> 
+<script type="text/javascript">
+var img_notLoggedInSrc = "not_logged_in";
+var img_noNewSrc = "no_new";
+var img_newSrc = "new";
+var iconSet = "set1";
+var iconFormat = ".png";
+var pingSound;
+var accounts;
+
+var canvas;
+var canvasContext;
+var gfx;
+var rotation = 1;
+var factor = 1;
+var animTimer;
+var loopTimer;
+var animDelay = 10;
+
+function startAnimate() {
+    stopAnimateLoop();
+        
+    if(localStorage["gc_animate_off"] == null || 
+        localStorage["gc_animate_off"] == "false") {
+        animTimer = setInterval("doAnimate()", animDelay);
+        setTimeout("stopAnimate()", 2000);
+        loopTimer = setTimeout("startAnimate()", 20000);
+    }
+}
+
+function stopAnimate() {
+    if(animTimer != null)
+        clearTimeout(animTimer);       
+        
+    setIcon(img_newSrc);
+    rotation = 1;
+    factor = 1;
+}
+
+function stopAnimateLoop() {
+    if(loopTimer != null)
+        clearTimeout(loopTimer);
+        
+    stopAnimate();
+}
+
+function doAnimate() {
+    canvasContext.save();
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+    canvasContext.translate(
+      Math.ceil(canvas.width/2),
+      Math.ceil(canvas.height/2));
+    canvasContext.rotate(rotation*2*Math.PI);
+    canvasContext.drawImage(gfx,
+      -Math.ceil(canvas.width/2),
+      -Math.ceil(canvas.height/2));
+    canvasContext.restore();
+    
+    rotation += 0.01 * factor;
+    
+    if(rotation <= 0.9 && factor < 0)
+        factor = 1;
+    else if(rotation >= 1.1 && factor > 0)
+        factor = -1;        
+        
+    chrome.browserAction.setIcon({imageData:canvasContext.getImageData(0, 0,
+      canvas.width,canvas.height)});
+}
+
+chrome.extension.onRequest.addListener(
+  function(request, sender, sendResponse) {
+    var openInTab = (localStorage["gc_open_tabs"] != null && localStorage["gc_open_tabs"] == "true");
+    var disableMailTo = (localStorage["gc_no_mailto"] != null && localStorage["gc_no_mailto"] == "true");
+    console.log(sender.tab ?
+                "from a content script:" + sender.tab.url :
+                "from the extension");
+    if (request.command == "getURL" && !disableMailTo)
+      sendResponse({URL: accounts[0].getURL(), openTab: openInTab});
+    }
+);
+
+function init() {
+    canvas = document.getElementById('canvas');
+    canvasContext = canvas.getContext('2d');
+    gfx = document.getElementById('gfx');
+    
+    reloadSettings();
+    
+    // Start request loop
+    window.setTimeout(startRequest, 0);
+}
+
+function reloadSettings() {
+    if(pingSound == null) {
+        try {
+            pingSound = document.createElement('audio');
+            pingSound.setAttribute('src', chrome.extension.getURL('ping.wav'));
+            pingSound.setAttribute('id', 'ping');
+            //pingSound.load();
+        }
+        catch(e) { }
+    }
+
+    if(localStorage["gc_poll"] == null) {
+        localStorage["gc_poll"] = 15000;
+    }
+       
+    reloadLanguage();
+    
+    iconSet = localStorage["gc_icon_set"];
+    if(iconSet == null || iconSet == "") {
+        iconSet = localStorage["gc_icon_set"] = "set1";
+    }   
+
+    setIcon(img_notLoggedInSrc);
+    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 255]});
+    chrome.browserAction.setBadgeText({text:"?"});
+    
+    if(localStorage["gc_preview_setting"] == null || 
+        localStorage["gc_preview_setting"] == "") {
+        localStorage["gc_preview_setting"] = "1";       
+    }
+    
+    if(localStorage["gc_version"] == null || 
+        localStorage["gc_version"] != "1.1.6") {
+        localStorage["gc_version"] = "1.1.6";
+        chrome.tabs.create({url : "about.html"});        
+    }
+    
+    
+    if(accounts != null) {
+        for(var i in accounts) {
+            if(accounts[i] != null) {
+                accounts[i].stopScheduler();
+                accounts[i] = null;
+                delete accounts[i];
+            }
+        }
+    }
+    accounts = new Array();
+    
+    if(localStorage["gc_check_gmail_off"] == null || 
+        localStorage["gc_check_gmail_off"] == "false") {
+        // Create standard Gmail account
+        var acc = new MailAccount();
+        acc.onError = mailError;
+        acc.onUpdate = mailUpdate;
+        accounts.push(acc);       
+    }    
+    
+    if(localStorage["gc_accounts"] != null) {
+        var savedAccounts = eval(localStorage["gc_accounts"]);
+        for(var i in savedAccounts) {
+            if(savedAccounts[i] == null || savedAccounts[i].domain == null)
+                break;
+
+            var acc = new MailAccount(savedAccounts[i].domain);
+            acc.onError = mailError;
+            acc.onUpdate = mailUpdate;
+            accounts.push(acc);
+        }
+    }
+
+    stopAnimateLoop();        
+    gfx.src = "icons/" + iconSet + "/new" + iconFormat;
+}
+
+// Sets the browser action icon
+function setIcon(iconName) { 
+    var fullPath = "icons/" + iconSet + "/" + iconName + iconFormat;
+    try {
+        chrome.browserAction.setIcon({path:fullPath});
+    } catch(e) {
+        console.error("Could not set browser action icon '" + fullPath + "'.");
+    }
+}
+
+// Request loop starter
+function startRequest() {
+    for(var i in accounts) {
+        if(accounts[i] != null)
+            accounts[i].startScheduler();
+    }
+}
+
+// Called when an account has received a mail update
+function mailUpdate(_account) {
+    stopAnimateLoop();
+    var hideCount = localStorage["gc_hide_count"];
+    
+    var unreadCount = 0;
+    for(var i in accounts) {
+        if(accounts[i] != null && accounts[i].getUnreadCount() > 0)
+            unreadCount += accounts[i].getUnreadCount();
+    }    
+    
+    if(hideCount == "true" || unreadCount < 1)
+        chrome.browserAction.setBadgeText({text:""});
+    else
+        chrome.browserAction.setBadgeText({text:unreadCount.toString()});
+
+    switch(unreadCount)
+    {
+        case 0:
+            setIcon(img_noNewSrc);              
+            chrome.browserAction.setBadgeBackgroundColor({color:[110, 140, 180, 255]});
+            chrome.browserAction.setTitle({title: lang.noUnreadText});
+            break;
+        case 1:
+            setIcon(img_newSrc);
+            startAnimate();
+            chrome.browserAction.setBadgeBackgroundColor({color:[200, 100, 100, 255]});
+            chrome.browserAction.setTitle({title:unreadCount + " " + ((lang.oneUnreadText) ? lang.oneUnreadText : lang.severalUnreadText)});
+            popup(lang.popupText);
+            playSound();            
+            break;
+        default:
+            setIcon(img_newSrc);
+            startAnimate();
+            chrome.browserAction.setBadgeBackgroundColor({color:[200, 100, 100, 255]});
+            chrome.browserAction.setTitle({title:unreadCount + " " + lang.severalUnreadText});
+            popup(lang.popupText);
+            playSound();
+            break;
+    }   
+}
+
+// Called when an account has experienced an error
+function mailError(_account) {
+    setIcon(img_notLoggedInSrc);
+    chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 255]});
+    chrome.browserAction.setBadgeText({text:"X"});
+    chrome.browserAction.setTitle({title:"Not logged in"});
+}
+
+// Plays a ping sound
+function playSound() {
+    if(localStorage["gc_sound_off"] != null && localStorage["gc_sound_off"] == "true")
+        return;
+        
+    try {
+        pingSound.pause(); 
+        pingSound.currentTime = 0;
+        pingSound.play();
+    }
+    catch(e) { }
+}
+
+// Displays a popup if the browser is minimized to tray 
+// http://code.google.com/p/minimizetotray/wiki/Popups
+function popup(text) {
+    try {
+        // Connect to extension
+        var port = chrome.extension.connect("ppkfenalijoglfhgpchdegciehdlinkh", {name: 'minimize-to-tray'});
+        // Send command to show up popup notification
+        port.postMessage({command: 'PopupNotify', title: "Google Mail Checker Plus", text: text});
+    } catch(e) { }
+}
+</script>
+</head>
+<body onload="init()">
+<img id="gfx" src="">
+<canvas id="canvas" width="19" height="19">
+</body>
+</html>
