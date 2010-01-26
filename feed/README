@@ -1,0 +1,12 @@
+Fork of RSS Subscription Extension https://chrome.google.com/extensions/detail/nlbjncdgjeocebhnmkbbbdekmmmcbfjd
+
+Since our old codebase had diverged too much with upstream, and failed on certain feeds, e.g. http://micro.fi5.us/external.php?type=RSS2, it's time to rebase our work on upstream v2.
+
+We used to be better than upstream in the following ways:
+ Detect if the current page is a feed, and automatically show a preview.
+ Support feeds with mime type text/html, e.g. ycombinator, stackoverflow.
+
+Changes that survived:
+1. Get full content instead of summary, if available (e.g. wordpress.com).
+2. Support two patterns for defining feed readers: %s and %S. %S is for feed readers that don't like the "http://" part (e.g. feedex.net, a feed expanding service) .
+3. Minor UI changes.
