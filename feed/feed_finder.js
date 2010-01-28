@@ -35,6 +35,13 @@ function findFeedLinks() {
     // Notify the extension needs to show the RSS page action icon.
     chrome.extension.sendRequest({msg: "feedIcon", feeds: feeds});
   }
+  /* Wei: Disable this since there's not a simple URL pattern to follow any page
+  else {
+    feeds.push({"href": "INVALID"});
+    feeds.push({"href": document.URL});
+    chrome.extension.sendRequest({msg: "greyIcon", feeds:feeds});
+  }
+  */
 }
 
 // Check to see if the current document is a feed delivered as plain text,

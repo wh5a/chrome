@@ -39,6 +39,14 @@ function feedLink(url) {
 function main() {
   chrome.tabs.getSelected(null, function(tab) {
     var feeds = chrome.extension.getBackgroundPage().feedData[tab.id];
+    if (feeds[0].href == "INVALID") {
+      // No feed, go straight to Google Reader.
+      var feed_url = encodeURIComponent(feeds[1].href);
+      url = 'http://www.google.com/reader/view/feed/' + feed_url;
+      chrome.tabs.create({ url: url });
+      window.close();
+      return;
+    }
     if (feeds.length == 1) {
       // Only one feed, no need for a bubble; go straight to the subscribe page.
       preview(feeds[0].href);
