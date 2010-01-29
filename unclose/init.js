@@ -2,6 +2,7 @@ function clear(tabId) {
   delete localStorage["TabList-"+tabId];
   delete localStorage["TabIndex-"+tabId];
   delete localStorage["TabTitle-"+tabId];
+  delete localStorage["TabFavicon-"+tabId];
 }
   
 function setBadgeText() {

@@ -6,9 +6,10 @@ function quote(s) {
 }
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-//  chrome.browserAction.setBadgeText({text:localStorage["closeCount"] + ""});
   localStorage["TabList-"+tabId] = tab.url;
   localStorage["TabIndex-"+tabId] = tab.index;
+  if (tab.favIconUrl)
+    localStorage["TabFavicon-"+tabId] = tab.favIconUrl;
   if(tab.title != null)
     localStorage["TabTitle-"+tabId] = quote(tab.title);
   else

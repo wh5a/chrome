@@ -1,9 +1,6 @@
 var nItems = 20; // Items in a page
 var pageNo = 0;
 
-// Loading this image still costs us time
-//var defaultImgUrl = "http://getfavicon.appspot.com/default.gif";
-
 function createLink(id, url) {
   var link = document.createElement('div');
   link.onclick = function(){showUrl(id);};
@@ -17,6 +14,8 @@ function loadText()
   var n = localStorage["actualCount"];
   if (parseInt(n) == 0)
     window.close();
+
+  var tabId, tabUrl, tabTime;
   
   content = document.getElementById("contentDiv");
   // Clear
@@ -40,17 +39,17 @@ function loadText()
       // Create a link node and the anchor encapsulating it.
       var text_link = createLink(tabId, tabUrl);
       
+      var img = document.createElement('img');
+      // On load, we don't try to pull the favicons.
+      img.src = "";
+      // Save the url in alt
+      if (localStorage["TabFavicon-"+tabId])
+        img.alt = localStorage["TabFavicon-"+tabId];
+      else img.alt = "empty.png";
+      img.width = 16;
+      img.height = 16;
+      text_link.appendChild(img);
 
-      if (/^http/.test(tabUrl)) {
-        var img = document.createElement('img');
-        // On load, we don't try to pull the favicons.
-        img.src = ""; //defaultImgUrl;
-        // Save the url in alt
-        img.alt = tabUrl;
-        img.width = 16;
-        img.height = 16;
-        text_link.appendChild(img);
-      }
       var textdiv = document.createElement('a');
       textdiv.innerHTML = " " + localStorage["TabTitle-"+tabId]; 
       text_link.appendChild(textdiv);
@@ -90,28 +89,9 @@ function loadText()
 
 function loadFavicon() {
   var imgs = document.images;
-  for (i=0; i<imgs.length; i++) {
-    var img = imgs[i];
-    // Send the whole url to a faster but less accurate service
-    var domain = img.alt.match('https://[^/]*/');
-    if (domain)
-      img.src = "http://getfavicon.appspot.com/" + domain[0];
-    else
-      img.src = "http://getfavicon.appspot.com/" + img.alt;
-  }
-  // After 5 seconds, we will resort to a slower but more accurate service
-  // setTimeout(loadFavicon2,5000);
+  for (i=0; i<imgs.length; i++)
+    imgs[i].src = imgs[i].alt;
 }
-
-function loadFavicon2() {
-  var imgs = document.images;
-  for (i=0; i<imgs.length; i++) {
-    var img = imgs[i];
-    // Unfortunately, the url doesn't get updated for failed requests. So this check is only true for https pages.
-//    if (img.src == defaultImgUrl)
-      img.src = "http://www.getfavicon.org/?url=" + img.alt.split('/')[2]; // This service only accepts domain names.
-  }
-}  
 
 function loadContent() {
   loadText();
