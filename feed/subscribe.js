@@ -64,7 +64,7 @@ function main() {
   // feedB.href = "view-source:" + feedUrl;
   // feedB.title = "Raw View";
   var feedA = document.getElementById('feedA');
-  feedA.href = feedUrl;
+  feedA.href = 'view-source:' + feedUrl;
   feedA.title = feedUrl;
   
   if (storageEnabled && window.localStorage.readerList)

@@ -99,7 +99,8 @@ function buildPreview(doc) {
     anchor.id = "anchor_" + String(i);
     if (link != "")
       anchor.href = link;
-    anchor.appendChild(document.createTextNode(itemTitle));
+    anchor.innerHTML = itemTitle;
+    anchor.target = "_top";
     anchor.className = "item_title";
 
     var span = document.createElement("span");
