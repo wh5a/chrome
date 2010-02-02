@@ -3,13 +3,21 @@ function isBlack() {
   var blacklist = [/live.com/,
                    /stackoverflow.com/,
                    /klocwork.com/,
-                   /www.google.com\/search\?/,
-                   /knol.com/
+                   /knol.google.com/
                   ]
   var host = window.location.host;
   for (var i=0; i<blacklist.length; i++)
     if (blacklist[i].test(host))
       return true;
+  
+  // This time match the entire url
+  blacklist = [/www\.google\.com\/search\?/
+              ];
+  host = window.location;
+  for (var i=0; i<blacklist.length; i++)
+    if (blacklist[i].test(host))
+      return true;
+
   return false;
 }
 
@@ -46,14 +54,12 @@ function processImg(img) {
 }
 
 function docTitle() {
-//  if (isBlack()) return;
   var imgs = document.images;
   for (var i=0; i<imgs.length; i++)
     processImg(imgs[i]);
 }
 
 function ajaxTitle(doc) {
-//  if (isBlack()) return;
   if (!doc.getElementsByTagName) return;
   var imgs = doc.getElementsByTagName("img");
   for (var i=0; i<imgs.length; i++)
