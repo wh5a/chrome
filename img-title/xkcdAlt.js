@@ -3,7 +3,8 @@ function isBlack() {
   var blacklist = [/live.com/,
                    /stackoverflow.com/,
                    /klocwork.com/,
-                   /knol.google.com/
+                   /knol.google.com/,
+                   /ingdirect.com/
                   ]
   var host = window.location.host;
   for (var i=0; i<blacklist.length; i++)
