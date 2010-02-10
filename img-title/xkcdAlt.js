@@ -4,7 +4,8 @@ function isBlack() {
                    /stackoverflow.com/,
                    /klocwork.com/,
                    /knol.google.com/,
-                   /ingdirect.com/
+                   /ingdirect.com/,
+                   /ams.org/
                   ]
   var host = window.location.host;
   for (var i=0; i<blacklist.length; i++)
