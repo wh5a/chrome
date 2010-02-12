@@ -4,6 +4,44 @@
 	for Google Mail Checker Plus
 	http://chrome.google.com/extensions/detail/gffjhibehnempbkeheiccaincokdjbfe
 */
+
+/*
+ Internet Timestamp Parser
+ Copyright (c) 2009 Sebastiaan Deckers
+ License: GNU General Public License version 3 or later
+*/
+Date.prototype.setISO8601 = function (timestamp) {
+ var match = timestamp.match(
+  "^([-+]?)(\\d{4,})(?:-?(\\d{2})(?:-?(\\d{2})" +
+  "(?:[Tt ](\\d{2})(?::?(\\d{2})(?::?(\\d{2})(?:\\.(\\d{1,3})(?:\\d+)?)?)?)?" +
+  "(?:[Zz]|(?:([-+])(\\d{2})(?::?(\\d{2}))?)?)?)?)?)?$");
+ if (match) {
+  for (var ints = [2, 3, 4, 5, 6, 7, 8, 10, 11], i = ints.length - 1; i >= 0; --i)
+   match[ints[i]] = (typeof match[ints[i]] != "undefined"
+    && match[ints[i]].length > 0) ? parseInt(match[ints[i]], 10) : 0;
+  if (match[1] == '-') // BC/AD
+   match[2] *= -1;
+  var ms = Date.UTC(
+   match[2], // Y
+   match[3] - 1, // M
+   match[4], // D
+   match[5], // h
+   match[6], // m
+   match[7], // s
+   match[8] // ms
+  );
+  if (typeof match[9] != "undefined" && match[9].length > 0) // offset
+   ms += (match[9] == '+' ? -1 : 1) *
+    (match[10]*3600*1000 + match[11]*60*1000); // oh om
+  if (match[2] >= 0 && match[2] <= 99) // 1-99 AD
+   ms -= 59958144000000;
+  this.setTime(ms);
+  return this;
+ }
+ else
+  return null;
+}
+
 function MailAccount(domain) {
 	// Check global settings
 	var pollInterval = localStorage["gc_poll"];
@@ -28,7 +66,8 @@ function MailAccount(domain) {
 		atomLabel = "unread";
 	}
 	
-	var mailArray;
+	var mailArray = new Array();
+    var newestMail;
 	var unreadCount = -1;
 	var mailTitle;
 	var abortTimerId;
@@ -56,7 +95,8 @@ function MailAccount(domain) {
 				var fullCount = Number(xmlDoc.getElementsByTagName("fullcount")[0].textContent);
 				mailTitle = xmlDoc.getElementsByTagName("title")[0].textContent;
                 mailTitle = mailTitle.replace("Gmail - ", "");
-				mailArray = new Array();
+                newestMail = null;
+                mailArray = new Array();
                 
 				if (fullCount > 0) {
 					// One or more unread emails, parse and store them!
@@ -79,13 +119,19 @@ function MailAccount(domain) {
 							
 							if(title == null || title.length < 1)
 								title = "(No subject)";
+                                
+                            if(authorName == null || authorName.length < 1)
+								authorName = "(unknown sender)";
+                                
+                            if(authorMail == null || authorMail.length < 1)
+								authorMail = "(unknown sender)";
 							 
 							/*if(summary != null && (title.length + summary.length) > 100) {
 								summary += "<span class=\"lowerright\">[<a href=\"javascript:getThread('" + id + "');\" title=\"View entire message\">more</a>]</span>";
 							}   */                            
 							
 							// Construct mail object and store in the mail array
-							mailArray.push({
+                            var newMail = {
 								"id" : id,
 								"title" : title,
 								"summary" : summary,
@@ -93,7 +139,23 @@ function MailAccount(domain) {
 								"issued" : issued,
 								"authorName" : authorName,
 								"authorMail" : authorMail
-							});
+							};
+                            
+                            var isNewMail = true;
+                            for(var j in mailArray) {
+                                if(mailArray[j].id == newMail.id && mailArray[j].issued == newMail.issued) {
+                                    isNewMail = false;
+                                }
+                            }
+                            
+                            if(isNewMail) {
+                                // This is a new mail
+                                if(newestMail == null || newestMail.issued < newMail.issued) {
+                                    newestMail = newMail;
+                                }
+                            } 
+                            
+                            mailArray.push(newMail);                           
 						} catch(e) { 
 							console.error(e); 
 						}
@@ -451,6 +513,7 @@ function MailAccount(domain) {
 	// Deletes a thread
 	this.deleteThread = function(threadid) {
 		if(threadid != null) {
+            postAction({"threadid":threadid, "action":"rd"});
 			postAction({"threadid":threadid, "action":"tr"});
 		}		
 	}
@@ -484,6 +547,18 @@ function MailAccount(domain) {
 		return mailArray;
 	}
     
+	// Returns the newest mail
+	this.getNewestMail = function() {
+		return newestMail;
+	}
+
+    // Opens the newest thread
+	this.openNewestMail = function() {        
+		if(newestMail != null) {
+			that.openThread(newestMail.id);
+		}
+	}
+    
     // Returns the mail URL
 	this.getURL = function() {
 		return mailURL;
@@ -509,11 +584,16 @@ function MailAccount(domain) {
 	
 	// Opens the Compose window with pre-filled data
 	this.replyTo = function(mail) {
-		var to = encodeURIComponent(mail.authorMail); // Escape sender email
+        //this.getThread(mail.id, replyToCallback);
+        var to = encodeURIComponent(mail.authorMail); // Escape sender email
 		var subject = mail.title; // Escape subject string
         subject = (subject.search(/^Re: /i) > -1) ? subject : "Re: " + subject; // Add 'Re: ' if not already there
         subject = encodeURIComponent(subject);
-		var replyURL = mailURL + "?view=cm&fs=1&tf=1&to=" + to + "&su=" + subject;
+        // threadbody = encodeURIComponent(threadbody);
+        var issued = (new Date()).setISO8601(mail.issued);
+        var threadbody = "\r\n\r\n" + issued.toString() + " <" + mail.authorMail + ">:\r\n" + mail.summary;
+        threadbody = encodeURIComponent(threadbody);
+		var replyURL = mailURL + "?view=cm&fs=1&tf=1&to=" + to + "&su=" + subject + "&body=" + threadbody;
         if(openInTab) {
 		    chrome.tabs.create({url: replyURL});
         } else {
@@ -521,6 +601,32 @@ function MailAccount(domain) {
 		    //chrome.windows.create({url: replyURL});
         }
 	}
+    
+    function replyToCallback(threadid, threadbody) {
+        var mail;
+        for(var i in mailArray) {
+            if(mailArray[i].id == threadid) {
+                mail = mailArray[i];
+                break;
+            }
+        }
+        
+        if(mail == null)
+            return;
+    
+        var to = encodeURIComponent(mail.authorMail); // Escape sender email
+		var subject = mail.title; // Escape subject string
+        subject = (subject.search(/^Re: /i) > -1) ? subject : "Re: " + subject; // Add 'Re: ' if not already there
+        subject = encodeURIComponent(subject);
+        threadbody = encodeURIComponent(threadbody);
+		var replyURL = mailURL + "?view=cm&fs=1&tf=1&to=" + to + "&su=" + subject + "&body=" + mail.summary;
+        if(openInTab) {
+		    chrome.tabs.create({url: replyURL});
+        } else {
+            window.open(replyURL,'Compose new message','width=640,height=480');
+		    //chrome.windows.create({url: replyURL});
+        }
+    }
 	
 	// No idea, actually...
 	function NSResolver(prefix) {

@@ -29,30 +29,32 @@ body {
 
 div#menu {
     position: absolute;
-    top: -10px;
+    top: -28px;
     right: 30px;
     float: right;
     padding-top: 10px;
     padding-right: 3px;
     padding-left: 5px;
-    background-color: white;
+    padding-bottom: 8px;
+    background: white url('img/dropdownarrow.png') no-repeat bottom center;
     border: 1px solid #6d93b8;
-    -moz-border-radius: 5px;  
     -webkit-border-radius: 5px; 
     z-index:99;
 }
 
-div#menu a {
+div#menu:hover {
+    top: -10px;
+    padding-bottom: 0px;
+    background: white none;
+}
+
+div#menu a.squareLink {
     margin-top: 1px;
     margin-right: 5px;
     display: block;
     float: left;
     width: 16px;
     height: 16px;
-}
-
-div#menu a img{
-    display: none;
 }
 
 div#menu a#options {
@@ -657,6 +659,8 @@ function init() {
         // Go to first mail inbox
         openInbox(0);
     } else {   
+        backgroundPage.stopAnimateLoop();
+    
         // Fill page with some nice HTML    
         var bodyElement = document.getElementById('scrollbar_content');
         bodyElement.innerHTML = '';
@@ -694,9 +698,9 @@ function init() {
 </head>
 <body id="body" onload="init()">
     <div id="menu">
-        <a href="javascript:refreshMail()" id="refresh"><img src="img/refresh.png" /></a>
-        <a href="javascript:openOptions()" id="options"><img src="img/wrench.png" /></a>
-        <img src="img/logo.png" />
+        <a href="javascript:refreshMail()" id="refresh" class="squareLink"><img src="img/refresh.png" class="hidden" /></a>
+        <a href="javascript:openOptions()" id="options" class="squareLink"><img src="img/wrench.png" class="hidden" /></a>
+        <a href="http://www.gmail.com" target="_blank" title="Gmail.com"><img src="img/logo.png" /></a>
     </div>
     <div id="scrollbar_container">  
         <div id="scrollbar_track"><div id="scrollbar_handle"></div></div>  
