@@ -1,0 +1,15 @@
+{
+   "content_scripts": [{
+      "js": [ "expand.js"],
+      "matches": [ "http://*.stackoverflow.com/*"
+                 , "http://serverfault.com/*"
+                 , "http://superuser.com/*"
+                 ]
+   }],
+  "icons": {
+    "128": "stackoverflow.png"
+  },
+   "description": "Expands all comments on stackoverflow.com and the like",
+   "name": "Stackoverflow comment expander",
+   "version": "0.1"
+}
