@@ -22,5 +22,5 @@
       "popup": "popup.html"
    },
    "permissions": [ "tabs", "http://*/*", "https://*/*" ],
-   "version": "2.1"
+   "version": "2.1.2"
 }
