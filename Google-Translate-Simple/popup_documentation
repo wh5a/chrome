@@ -1,0 +1,20 @@
+Set_icon()
+Icon is set dynamically
+Draw the icon on start up of the language saved in localStorage.
+Image is uploaded 
+and then canvas is made.
+The format of Canvas is set.
+Then Rectangle shape canvas is drawn 
+and image is uploaded on it.
+
+Save_options()
+Saving language to localStorage
+
+Restore_options()
+Restores language from localStorage.
+
+Translate()
+Creating a new tab with the language pointed out
+
+Translate_homepage()
+opening google translate homepage
