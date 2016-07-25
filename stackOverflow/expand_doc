@@ -1,0 +1,7 @@
+In first two lines we create mouse events and initiate mouse click events.
+Then we declare a total variable which tells about total comments on page,
+it is initialized to 0.
+Then we create a function clickComment.
+We then retrieve all elements that have class as "comment-click".
+Then we loop all the comments and expand the the comments which have "expand" as the first string.
+Then we call the function clickComment().
