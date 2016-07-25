@@ -1,0 +1,11 @@
+This manifest is nothing more than a metadata file in JSON format that contains properties like your extension's name,
+description, version number and so on.
+At a high level, we will use it to declare to Chrome what the extension is going to do, 
+and what permissions it requires in order to do those things.
+"content_scripts.js":
+         "js":       tells about the js file to be executed.
+         "matches":  here we have given regex to give urls for those content script to be executed.
+"icons": This gives the icon to be displayed in browser window when this extension is activated.
+"description": This gives description of extension.
+"version": Version of extebnsion is 0.1.
+"name": This gives name of extension.
