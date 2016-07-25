@@ -16,22 +16,22 @@ else
 }
 
 function findDlf() {
-  var forms = document.forms;
-  for (var i = 0; i < forms.length; i++)
-    if (forms[i].getAttribute("name") == "dlf")
-      return forms[i];
-  return null;
-}
+  var forms = document.forms;                      // forms is equal to forms present in document
+  for (var i = 0; i < forms.length; i++)          // for loop from 0 to the length of array forms
+    if (forms[i].getAttribute("name") == "dlf")   // check if name attribute of forms has dlf or not
+      return forms[i];                        // return the forms[i] which has 'dlf' in name attribute of forms 
+  return null;                            
+}                     
 
 // Try this several times
 function download(count) {
-  return function() {
-    var form = findDlf();
+  return function() {            
+    var form = findDlf();                   
     // Our "c=0" hack reveals the download button, but the rapidshare server seems to keep a count too.
     // We still have to sit out the countdown to be able to download it.
-    if (form) form.submit();
-    else {
-      if (count > 4) return;
+    if (form) form.submit();        // if form then submit it
+    else {                     // else if count >4 return download(count+1) after 1 second. i.e. execute 
+      if (count > 4) return;     // the function again with count= count+1;
       setTimeout(download(count+1), 1000);
     }
   }
