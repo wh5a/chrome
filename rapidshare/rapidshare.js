@@ -23,16 +23,16 @@ rsDownloadHelper.onLoad = function()
 		downloadcounter.style.display='none';
 
 		var ina = setInterval(function() {
-			var zeit = document.getElementById("zeit");
-			var num = zeit.innerHTML.match(/[\d\.]+/g);
-			downloadcounter.style.display='none';
+			var zeit = document.getElementById("zeit"); // selecting the element with Id zeit.
+			var num = zeit.innerHTML.match(/[\d\.]+/g); // trying to match its inner html to text '/[\d\.]+/g'
+			downloadcounter.style.display='none';     // set the display property of the DIV element to "none"
 			message.innerHTML = "Now you can continue browsing, the file will be downloaded automatically!<br>Your automatic download will start in <font style='font-size:12px;color:#df3f4e'><b>"+ num[0] +"</b></font> seconds.";
-
-			if (num[0] == "1") {
-				var inaa = setTimeout(function() {
-					var f = document.forms;
-					for (i=0;i<f.length;i++) {
-						if (f[i].name=="dlf") {
+                           //  change message HTML content
+			if (num[0] == "1") {                  // if num is 1 then execute the if
+				var inaa = setTimeout(function() {       // wait for 1.5s to execute the function
+					var f = document.forms;         // f is equal to forms present in documents
+					for (i=0;i<f.length;i++) {     
+						if (f[i].name=="dlf") {  // if we find dlg in name in f then submit it.
 							f[i].submit();
 							return;
 						}
@@ -40,7 +40,7 @@ rsDownloadHelper.onLoad = function()
 				}, 1500);
 				clearInterval(ina)
 			}
-		},1000);
+		},1000);    
 	}
 
 }
