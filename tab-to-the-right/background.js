@@ -1,5 +1,3 @@
-<html><head>
-<script>
 /*
   After some experiments, I make the following (potentially wrong) observations:
   
@@ -141,7 +139,6 @@ chrome.windows.onFocusChanged.addListener(function(_) {
   updateCachedTabs();
 });
 
-</script>
-</head>
-<body onload="restore_options()"/>
-</html>
+chrome.runtime.onStartup.addListener(function() {
+  restore_options();
+});

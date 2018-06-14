@@ -1,12 +1,19 @@
 {
   "name": "Tab to the next",
-  "version": "1.7",
+  "version": "2.0",
   "author": "Wei Hu",
   "description": "Brings the new tab next to the current one. Also controls which tab will be selected when you close one.",
-  "background_page": "background.html",
+  "manifest_version": 2,
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
   "permissions": [
     "tabs"
   ],
   "icons": {"48": "go-jump.png"},
-  "options_page": "options.html"
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
 }
