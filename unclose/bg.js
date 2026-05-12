@@ -1,15 +1,17 @@
 chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
   await ensureInitialized();
+  var tabKey = "TabList-" + tabId;
+  var currentUrl = tab.url || await storageGet(tabKey);
   var updates = {};
   if (tab.url)
-    updates["TabList-" + tabId] = tab.url;
+    updates[tabKey] = tab.url;
   updates["TabIndex-" + tabId] = tab.index;
   if (tab.favIconUrl)
     updates["TabFavicon-" + tabId] = tab.favIconUrl;
-  if(tab.title != null)
+  if(tab.title != null && currentUrl)
     updates["TabTitle-" + tabId] = tab.title;
-  else if (tab.url)
-    updates["TabTitle-" + tabId] = tab.url;
+  else if (currentUrl)
+    updates["TabTitle-" + tabId] = currentUrl;
   await storageSet(updates);
 });
 

@@ -69,7 +69,7 @@ async function loadText()
       text_link.appendChild(img);
 
       var textdiv = document.createElement('a');
-      textdiv.textContent = " " + (state["TabTitle-"+tabId] || tabUrl);
+      textdiv.textContent = state["TabTitle-"+tabId] || tabUrl;
       text_link.appendChild(textdiv);
       var timeTextz='';
       
@@ -83,7 +83,7 @@ async function loadText()
       var secondsDifference = Math.floor(difference/1000); 
       // This next line below looks for entries over a day old 
 
-      if ( hoursDifference < 1 &&  minutesDifference < 1 && secondsDifference < 60) timeTextz = secondsDifference + ' sec'; 
+      if ( hoursDifference < 1 &&  minutesDifference < 1) timeTextz = secondsDifference + ' sec'; 
       else if (hoursDifference < 1 && minutesDifference < 10) timeTextz = minutesDifference + ' min'; 
       else if (hoursDifference < 1) timeTextz = minutesDifference + ' min'; 
       else if (hoursDifference < 4) timeTextz = hoursDifference + 'hr ' + minutesDifference + 'm'; 
