@@ -69,7 +69,7 @@ async function loadText()
       text_link.appendChild(img);
 
       var textdiv = document.createElement('a');
-      textdiv.textContent = state["TabTitle-"+tabId] || tabUrl;
+      textdiv.textContent = " " + (state["TabTitle-"+tabId] || tabUrl);
       text_link.appendChild(textdiv);
       var timeTextz='';
       
@@ -131,7 +131,6 @@ function prev() {
 // Show |url| in a new tab.
 async function showUrl(tabId) {
   var state = await storageGet({
-    actualCount: 0,
     ["TabList-" + tabId]: null,
     ["TabIndex-" + tabId]: null
   });
