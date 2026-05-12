@@ -22,12 +22,16 @@ async function getOptions() {
   var updates = {};
   var legacy = getLegacyOptions();
 
-  if (options.create === undefined && !Number.isNaN(legacy.create)) {
+  if (options.create === undefined &&
+      legacy.create !== undefined &&
+      !Number.isNaN(legacy.create)) {
     options.create = legacy.create;
     updates.create = legacy.create;
   }
 
-  if (options.close === undefined && !Number.isNaN(legacy.close)) {
+  if (options.close === undefined &&
+      legacy.close !== undefined &&
+      !Number.isNaN(legacy.close)) {
     options.close = legacy.close;
     updates.close = legacy.close;
   }
