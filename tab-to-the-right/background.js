@@ -19,7 +19,6 @@ function logError(error) {
   console.error(error);
 }
 
-var OFFSCREEN_DOCUMENT_PATH = "offscreen.html";
 var CACHE_KEY_PREFIX = "cachedTabs:";
 
 function getCacheKey(windowId) {
@@ -126,68 +125,7 @@ async function getOptions() {
   };
 }
 
-async function hasOffscreenDocument() {
-  var contexts = await chrome.runtime.getContexts({
-    contextTypes: ["OFFSCREEN_DOCUMENT"],
-    documentUrls: [chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH)]
-  });
-  return contexts.length > 0;
-}
-
-async function withOffscreenDocument(action) {
-  var created = false;
-
-  if (!await hasOffscreenDocument()) {
-    await chrome.offscreen.createDocument({
-      url: OFFSCREEN_DOCUMENT_PATH,
-      reasons: ["LOCAL_STORAGE"],
-      justification: "Migrate legacy MV2 localStorage options to chrome.storage.local"
-    });
-    created = true;
-  }
-
-  try {
-    return await action();
-  } finally {
-    if (created) {
-      await chrome.offscreen.closeDocument();
-    }
-  }
-}
-
-async function migrateLegacyOptions() {
-  var legacyOptions;
-
-  try {
-    legacyOptions = await withOffscreenDocument(function() {
-      return chrome.runtime.sendMessage({type: "get-legacy-options"});
-    });
-  } catch (error) {
-    logError(error);
-    return;
-  }
-
-  var storedOptions = await chrome.storage.local.get(["create", "close"]);
-  var updates = {};
-
-  maybeSetMigratedOption(updates, storedOptions, legacyOptions, "create");
-  maybeSetMigratedOption(updates, storedOptions, legacyOptions, "close");
-
-  if (Object.keys(updates).length > 0) {
-    await chrome.storage.local.set(updates);
-  }
-}
-
-function maybeSetMigratedOption(updates, storedOptions, legacyOptions, key) {
-  if (storedOptions[key] === undefined &&
-      legacyOptions[key] !== undefined &&
-      !Number.isNaN(legacyOptions[key])) {
-    updates[key] = legacyOptions[key];
-  }
-}
-
 async function initializeExtension() {
-  await migrateLegacyOptions();
   await ensureOptions();
   await updateAllCachedTabs();
 }
