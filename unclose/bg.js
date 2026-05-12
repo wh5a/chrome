@@ -7,8 +7,8 @@ function enqueueWrite(asyncFn) {
   return _writeQueue;
 }
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-  enqueueWrite(async () => {
+chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
+  await enqueueWrite(async () => {
     await ensureInitialized();
     var tabKey = "TabList-" + tabId;
     var currentUrl = tab.url || await storageGet(tabKey);
@@ -26,8 +26,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   });
 });
 
-chrome.tabs.onRemoved.addListener(function(tabId, info) {
-  enqueueWrite(async () => {
+chrome.tabs.onRemoved.addListener(async function(tabId, info) {
+  await enqueueWrite(async () => {
     await ensureInitialized();
     // Should we record this tab?
     var tabKey = "TabList-" + tabId;
