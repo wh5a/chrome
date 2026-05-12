@@ -27,7 +27,12 @@ async function loadText()
   var state = await storageGetAll();
   var n = parseInt(state.actualCount, 10) || 0;
   if (n == 0) {
-    window.close();
+    var content = document.getElementById("contentDiv");
+    while (content.hasChildNodes())
+      content.removeChild(content.firstChild);
+    var msg = document.createElement('div');
+    msg.textContent = 'No recently closed tabs.';
+    content.appendChild(msg);
     return;
   }
 
@@ -112,8 +117,7 @@ function loadFavicon() {
 
 async function loadContent() {
   await loadText();
-  // Delay this function a little bit in order not to halt the popup
-  setTimeout(loadFavicon, 500);
+  loadFavicon();
 }
 
 async function next() {
