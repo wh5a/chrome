@@ -192,7 +192,7 @@ async function initializeExtension() {
   await updateAllCachedTabs();
 }
 
-var ready = initializeExtension();
+var ready = initializeExtension().catch(logError);
 
 chrome.tabs.onCreated.addListener(function(tab) {
   (async function() {
@@ -252,6 +252,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
         await chrome.tabs.update(tabs[nextIndex].id, {
           active: true
         });
+        tabs = await getTabs(removeInfo.windowId);
       }
     }
 
