@@ -3,6 +3,10 @@ var DEFAULT_OPTIONS = {
   close: 0
 };
 
+function logError(error) {
+  console.error(error);
+}
+
 function getLegacyOptions() {
   var legacyCreate = localStorage.getItem("create");
   var legacyClose = localStorage.getItem("close");
@@ -66,7 +70,7 @@ async function restoreOptions() {
 
 document.addEventListener("DOMContentLoaded", function() {
   document.getElementById("save").addEventListener("click", function() {
-    void saveOptions();
+    saveOptions().catch(logError);
   });
-  void restoreOptions();
+  restoreOptions().catch(logError);
 });

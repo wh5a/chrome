@@ -18,6 +18,10 @@ var DEFAULT_OPTIONS = {
   close: 0
 };
 
+function logError(error) {
+  console.error(error);
+}
+
 function getCacheKey(windowId) {
   return "cachedTabs:" + windowId;
 }
@@ -102,7 +106,7 @@ async function getOptions() {
 }
 
 chrome.tabs.onCreated.addListener(function(tab) {
-  void (async function() {
+  (async function() {
     var options = await getOptions();
     var cachedTabs = await getCachedTabs(tab.windowId);
     var selIndex = cachedTabs.findIndex(function(cachedTab) {
@@ -128,11 +132,11 @@ chrome.tabs.onCreated.addListener(function(tab) {
     }
 
     await updateCachedTabs(tab.windowId);
-  })();
+  })().catch(logError);
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-  void (async function() {
+  (async function() {
     if (removeInfo.isWindowClosing) {
       return;
     }
@@ -161,51 +165,51 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     }
 
     await setCachedTabs(removeInfo.windowId, tabs);
-  })();
+  })().catch(logError);
 });
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-  void (async function() {
+  (async function() {
     var tabs = await getTabs(activeInfo.windowId);
     var cachedTabs = await getCachedTabs(activeInfo.windowId);
 
     if (cachedTabs.length <= tabs.length) {
       await setCachedTabs(activeInfo.windowId, tabs);
     }
-  })();
+  })().catch(logError);
 });
 
 chrome.tabs.onMoved.addListener(function(_, moveInfo) {
-  void updateCachedTabs(moveInfo.windowId);
+  updateCachedTabs(moveInfo.windowId).catch(logError);
 });
 
 chrome.tabs.onAttached.addListener(function(_, attachInfo) {
-  void updateCachedTabs(attachInfo.newWindowId);
+  updateCachedTabs(attachInfo.newWindowId).catch(logError);
 });
 
 chrome.tabs.onDetached.addListener(function(_, detachInfo) {
-  void updateCachedTabs(detachInfo.oldWindowId);
+  updateCachedTabs(detachInfo.oldWindowId).catch(logError);
 });
 
 chrome.windows.onFocusChanged.addListener(function(windowId) {
-  void updateCachedTabs(windowId);
+  updateCachedTabs(windowId).catch(logError);
 });
 
 chrome.runtime.onInstalled.addListener(function() {
-  void (async function() {
+  (async function() {
     await ensureOptions();
     await updateAllCachedTabs();
-  })();
+  })().catch(logError);
 });
 
 chrome.runtime.onStartup.addListener(function() {
-  void (async function() {
+  (async function() {
     await ensureOptions();
     await updateAllCachedTabs();
-  })();
+  })().catch(logError);
 });
 
-void (async function() {
+(async function() {
   await ensureOptions();
   await updateAllCachedTabs();
-})();
+})().catch(logError);
