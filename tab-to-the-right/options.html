@@ -6,58 +6,28 @@
     select {font-size:80%}
     button {font-size:100%}    
   </style>
+  <script src="defaults.js"></script>
+  <script src="options.js" defer></script>
 </head>
-<script type="text/javascript">
-
-// Saves options to localStorage.
-function save_options() {
-  var select = document.getElementById("create");
-  var pos = select.selectedIndex;
-  localStorage["create"] = pos;
-
-  select = document.getElementById("close");
-  pos = select.selectedIndex;
-  localStorage["close"] = pos;
-}
-
-// Restores select box state to saved value from localStorage.
-function restore_options() {
-  var pos = localStorage["create"];
-  if (!pos) {
-    return;
-  }
-  var select = document.getElementById("create");
-  select.children[pos].selected = "true";
-
-  pos = localStorage["close"];
-  if (!pos) {
-    return;
-  }
-  select = document.getElementById("close");
-  select.children[pos].selected = "true";
-}
-
-</script>
-
-<body onload="restore_options()">
+<body>
 <p>
 When a new tab is created:
 <select id="create">
- <option>Move it only when it is far right</option>
- <option>Always move</option>
- <option>Do nothing</option>
+ <option value="0">Move it only when it is far right</option>
+ <option value="1">Always move</option>
+ <option value="2">Do nothing</option>
 </select>
 <br>
 
 When a tab is closed:
 <select id="close">
- <option>Do nothing</option>
- <option>Select the left tab</option>
- <option>Select the right tab</option>
+ <option value="0">Do nothing</option>
+ <option value="1">Select the left tab</option>
+ <option value="2">Select the right tab</option>
 </select>
 <br>
 
-<button onclick="save_options()">Save</button>
+<button id="save">Save</button>
 </p>
 </body>
 </html>
