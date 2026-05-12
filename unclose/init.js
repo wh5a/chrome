@@ -44,10 +44,10 @@ async function init()
   await initialize();
 }
 
-chrome.runtime.onInstalled.addListener(function() {
-  init();
+chrome.runtime.onInstalled.addListener(async function() {
+  await init();
 });
 
-chrome.runtime.onStartup.addListener(function() {
-  init();
+chrome.runtime.onStartup.addListener(async function() {
+  await init();
 });

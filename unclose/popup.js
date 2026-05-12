@@ -69,7 +69,7 @@ async function loadText()
       text_link.appendChild(img);
 
       var textdiv = document.createElement('a');
-      textdiv.textContent = " " + (state["TabTitle-"+tabId] || tabUrl);
+      textdiv.textContent = state["TabTitle-"+tabId] || tabUrl;
       text_link.appendChild(textdiv);
       var timeTextz='';
       
@@ -83,13 +83,13 @@ async function loadText()
       var secondsDifference = Math.floor(difference/1000); 
       // This next line below looks for entries over a day old 
 
-      if ( hoursDifference < 1 &&  minutesDifference < 1 &&secondsDifference < 60) timeTextz = '<b>'+ secondsDifference + ' sec</b>'; 
-      else if (hoursDifference < 1 && minutesDifference < 10) timeTextz = '<b>'+ minutesDifference + ' min</b>'; 
-      else if (hoursDifference < 1) timeTextz = '<b>'+ minutesDifference + ' min</b>'; 
-      else if (hoursDifference < 4) timeTextz= '<b>' + hoursDifference + 'hr ' + minutesDifference + 'm</b>'; 
-      else if (hoursDifference < 24) timeTextz='<b>' + hoursDifference + ' hr</b>'; 
+      if ( hoursDifference < 1 &&  minutesDifference < 1 &&secondsDifference < 60) timeTextz = secondsDifference + ' sec'; 
+      else if (hoursDifference < 1 && minutesDifference < 10) timeTextz = minutesDifference + ' min'; 
+      else if (hoursDifference < 1) timeTextz = minutesDifference + ' min'; 
+      else if (hoursDifference < 4) timeTextz = hoursDifference + 'hr ' + minutesDifference + 'm'; 
+      else if (hoursDifference < 24) timeTextz = hoursDifference + ' hr'; 
       if (timeTextz)
-        appendTime(text_link, timeTextz.replace(/<\/?b>/g, ""));
+        appendTime(text_link, timeTextz);
       
       content.appendChild(text_link);
       j++;
@@ -116,8 +116,9 @@ async function loadContent() {
   setTimeout(loadFavicon, 500);
 }
 
-function next() {
-  pageNo++;
+async function next() {
+  if ((parseInt(await storageGet("actualCount"), 10) || 0) > (pageNo+1) * nItems)
+    pageNo++;
   loadContent();
 }
 
