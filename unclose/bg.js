@@ -1,43 +1,56 @@
-chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
-  await ensureInitialized();
-  var tabKey = "TabList-" + tabId;
-  var currentUrl = tab.url || await storageGet(tabKey);
-  var updates = {};
-  if (tab.url)
-    updates[tabKey] = tab.url;
-  updates["TabIndex-" + tabId] = tab.index;
-  if (tab.favIconUrl)
-    updates["TabFavicon-" + tabId] = tab.favIconUrl;
-  if(tab.title != null && currentUrl)
-    updates["TabTitle-" + tabId] = tab.title;
-  else if (currentUrl)
-    updates["TabTitle-" + tabId] = currentUrl;
-  await storageSet(updates);
+// Serialize all storage writes to prevent counter races on rapid tab events.
+var _writeQueue = Promise.resolve();
+function enqueueWrite(asyncFn) {
+  _writeQueue = _writeQueue.then(asyncFn).catch((err) => {
+    console.error('[unclose] storage write failed:', err);
+  });
+  return _writeQueue;
+}
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+  enqueueWrite(async () => {
+    await ensureInitialized();
+    var tabKey = "TabList-" + tabId;
+    var currentUrl = tab.url || await storageGet(tabKey);
+    var updates = {};
+    if (tab.url)
+      updates[tabKey] = tab.url;
+    updates["TabIndex-" + tabId] = tab.index;
+    if (tab.favIconUrl)
+      updates["TabFavicon-" + tabId] = tab.favIconUrl;
+    if (tab.title != null)
+      updates["TabTitle-" + tabId] = tab.title;
+    else if (currentUrl)
+      updates["TabTitle-" + tabId] = currentUrl;
+    await storageSet(updates);
+  });
 });
 
-chrome.tabs.onRemoved.addListener(async function(tabId, info)  {
-  await ensureInitialized();
-  // Should we record this tab?
-  var tabKey = "TabList-" + tabId;
-  var state = await storageGet({
-    closeCount: 0,
-    actualCount: 0,
-    [tabKey]: null
+chrome.tabs.onRemoved.addListener(function(tabId, info) {
+  enqueueWrite(async () => {
+    await ensureInitialized();
+    // Should we record this tab?
+    var tabKey = "TabList-" + tabId;
+    var state = await storageGet({
+      closeCount: 0,
+      actualCount: 0,
+      [tabKey]: null
+    });
+    var url = state[tabKey];
+    var re = /^(http:|https:|ftp:|file:)/;
+    if (url && re.test(url)) {
+      var closeCount = parseInt(state.closeCount, 10) || 0;
+      var actualCount = (parseInt(state.actualCount, 10) || 0) + 1;
+      var updates = {
+        closeCount: closeCount + 1,
+        actualCount: actualCount
+      };
+      updates["ClosedTab-" + closeCount] = tabId;
+      updates["ClosedTabTime-" + closeCount] = new Date().getTime();
+      await storageSet(updates);
+      await setBadgeText();
+    }
+    else
+      await clear(tabId);
   });
-  var url = state[tabKey];
-  var re = /^(http:|https:|ftp:|file:)/;
-  if (url && re.test(url)) {
-    var closeCount = parseInt(state.closeCount, 10) || 0;
-    var actualCount = (parseInt(state.actualCount, 10) || 0) + 1;
-    var updates = {
-      closeCount: closeCount + 1,
-      actualCount: actualCount
-    };
-    updates["ClosedTab-" + closeCount] = tabId;
-    updates["ClosedTabTime-" + closeCount] = new Date().getTime();
-    await storageSet(updates);
-    await setBadgeText();
-  }
-  else
-    await clear(tabId);
 });

@@ -131,7 +131,6 @@ function prev() {
 // Show |url| in a new tab.
 async function showUrl(tabId) {
   var state = await storageGet({
-    actualCount: 0,
     ["TabList-" + tabId]: null,
     ["TabIndex-" + tabId]: null
   });
@@ -146,8 +145,11 @@ async function showUrl(tabId) {
 
   await chrome.tabs.create(createProperties);
   await clear(tabId);
+  // Re-read actualCount right before decrementing to minimise the race window
+  // with concurrent onRemoved increments.
+  var currentCount = parseInt(await storageGet("actualCount"), 10) || 0;
   await storageSet({
-    actualCount: Math.max((parseInt(state.actualCount, 10) || 0) - 1, 0)
+    actualCount: Math.max(currentCount - 1, 0)
   });
   await setBadgeText();
   await loadContent();
