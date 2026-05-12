@@ -4,9 +4,12 @@ var DEFAULT_OPTIONS = {
 };
 
 function getLegacyOptions() {
+  var legacyCreate = localStorage.getItem("create");
+  var legacyClose = localStorage.getItem("close");
+
   return {
-    create: parseInt(localStorage["create"], 10),
-    close: parseInt(localStorage["close"], 10)
+    create: legacyCreate === null ? undefined : parseInt(legacyCreate, 10),
+    close: legacyClose === null ? undefined : parseInt(legacyClose, 10)
   };
 }
 
