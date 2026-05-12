@@ -13,132 +13,199 @@
   with selIndex.
 */
 
-var cachedTabs;
+var DEFAULT_OPTIONS = {
+  create: 0,
+  close: 0
+};
 
-function cloneTabInfo(a) {
-  /*
-  console.log("Update cache from old to new:");
-  console.log(cachedTabs);
-  console.log(a);
-  */
-  cachedTabs = new Array();
-  for (var tab in a) {
-    cachedTabs[tab] = new Object();
-    cachedTabs[tab].id = a[tab].id;
-    cachedTabs[tab].selected = a[tab].selected;
-  }
+function getCacheKey(windowId) {
+  return "cachedTabs:" + windowId;
 }
 
-function updateCachedTabs(){
-  chrome.tabs.getAllInWindow(null, function(tabs) {
-    cloneTabInfo(tabs);
+function cloneTabInfo(tabs) {
+  return tabs.map(function(tab) {
+    return {
+      id: tab.id,
+      active: tab.active
+    };
   });
 }
 
-function findIndex(p) {
-  for (var i in cachedTabs)
-    if (p(cachedTabs[i]))
-      return parseInt(i);
-  return null;
+async function setCachedTabs(windowId, tabs) {
+  var values = {};
+  values[getCacheKey(windowId)] = cloneTabInfo(tabs);
+  await chrome.storage.session.set(values);
 }
 
-function restore_options() {
-  var pos = localStorage["create"];
-  if (!pos) localStorage["create"] = 0;
-  pos = localStorage["close"];
-  if (!pos) localStorage["close"] = 0;
+async function getCachedTabs(windowId) {
+  var key = getCacheKey(windowId);
+  var values = await chrome.storage.session.get(key);
+  return values[key] || [];
+}
+
+async function getTabs(windowId) {
+  return chrome.tabs.query({windowId: windowId});
+}
+
+async function updateCachedTabs(windowId) {
+  if (windowId === chrome.windows.WINDOW_ID_NONE) {
+    return [];
+  }
+  var tabs = await getTabs(windowId);
+  await setCachedTabs(windowId, tabs);
+  return tabs;
+}
+
+async function updateAllCachedTabs() {
+  var tabs = await chrome.tabs.query({});
+  var groupedTabs = {};
+
+  tabs.forEach(function(tab) {
+    var key = getCacheKey(tab.windowId);
+    if (!groupedTabs[key]) {
+      groupedTabs[key] = [];
+    }
+    groupedTabs[key].push({
+      id: tab.id,
+      active: tab.active
+    });
+  });
+
+  if (Object.keys(groupedTabs).length > 0) {
+    await chrome.storage.session.set(groupedTabs);
+  }
+}
+
+async function ensureOptions() {
+  var options = await chrome.storage.local.get(DEFAULT_OPTIONS);
+  var updates = {};
+
+  if (options.create === undefined) {
+    updates.create = DEFAULT_OPTIONS.create;
+  }
+
+  if (options.close === undefined) {
+    updates.close = DEFAULT_OPTIONS.close;
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await chrome.storage.local.set(updates);
+  }
+}
+
+async function getOptions() {
+  var options = await chrome.storage.local.get(DEFAULT_OPTIONS);
+  return {
+    create: parseInt(options.create, 10),
+    close: parseInt(options.close, 10)
+  };
 }
 
 chrome.tabs.onCreated.addListener(function(tab) {
-  //console.log("New tab created.");
-  var create = localStorage["create"];
-  var myIndex = tab.index;
-  var selIndex = findIndex(function(x) { return x.selected; });
-  if (create == 2 || selIndex == null) { // Do nothing?
-    updateCachedTabs();
-    return;
-  }
-  if (create == 0) { // Smart move?
-    chrome.tabs.getAllInWindow(null, function(tabs) {
-      var maxIndex = tabs.length - 1;
-      if (myIndex == maxIndex)
-        chrome.tabs.move(tab.id, {
+  void (async function() {
+    var options = await getOptions();
+    var cachedTabs = await getCachedTabs(tab.windowId);
+    var selIndex = cachedTabs.findIndex(function(cachedTab) {
+      return cachedTab.active;
+    });
+
+    if (options.create === 2 || selIndex === -1) {
+      await updateCachedTabs(tab.windowId);
+      return;
+    }
+
+    if (options.create === 0) {
+      var tabs = await getTabs(tab.windowId);
+      if (tab.index === tabs.length - 1) {
+        await chrome.tabs.move(tab.id, {
           index: selIndex + 1
-        }, updateCachedTabs);
-      else // Don't forget to update the cache!!
-        updateCachedTabs();
-    });    
-  }
-  else // Always move?
-    chrome.tabs.move(tab.id, {
-      index: selIndex + 1
-    }, updateCachedTabs);
+        });
+      }
+    } else {
+      await chrome.tabs.move(tab.id, {
+        index: selIndex + 1
+      });
+    }
+
+    await updateCachedTabs(tab.windowId);
+  })();
 });
 
-chrome.tabs.onRemoved.addListener(function(tabId) {
-  chrome.tabs.getAllInWindow(null, function(tabs) {
-    /*
-    console.log("Deleting a tab, the cached tabs are.");
-    console.log(cachedTabs);
-    console.log("The current tabs are.");
-    console.log(tabs);
-    console.log("The deleted tab is.");
-    console.log(tabId);
-    */
-    var close = localStorage["close"];
-    if (close > 0) {
-      var closedIndex = findIndex(function(x) {return (x.id == tabId);});
-      if (closedIndex == null) { // Shouldn't happen!
-        console.error(tabId);
-        console.error(tabs);
-        console.error(cachedTabs);
-      }
-      // Change focus to the left or right only if the tab being closed was focused, and the window had >1 tabs
-      else if (cachedTabs[closedIndex].selected && cachedTabs.length>1) {
-        var nextIndex = closedIndex; // Select right
-        if (close == 1 && nextIndex > 0) // Select left
+chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+  void (async function() {
+    if (removeInfo.isWindowClosing) {
+      return;
+    }
+
+    var tabs = await getTabs(removeInfo.windowId);
+    var cachedTabs = await getCachedTabs(removeInfo.windowId);
+    var options = await getOptions();
+
+    if (options.close > 0) {
+      var closedIndex = cachedTabs.findIndex(function(tab) {
+        return tab.id === tabId;
+      });
+
+      if (closedIndex !== -1 && cachedTabs[closedIndex].active && tabs.length > 0) {
+        var nextIndex = closedIndex;
+        if (options.close === 1 && nextIndex > 0) {
           nextIndex -= 1;
-        if (nextIndex > cachedTabs.length - 1) nextIndex = cachedTabs.length - 1;
-        chrome.tabs.update(cachedTabs[nextIndex].id, {
-          selected: true
-        }, updateCachedTabs);
+        }
+        if (nextIndex > tabs.length - 1) {
+          nextIndex = tabs.length - 1;
+        }
+        await chrome.tabs.update(tabs[nextIndex].id, {
+          active: true
+        });
       }
     }
-    cloneTabInfo(tabs);
-  });
+
+    await setCachedTabs(removeInfo.windowId, tabs);
+  })();
 });
 
-chrome.tabs.onSelectionChanged.addListener(function(tabId, _) {
-  chrome.tabs.getAllInWindow(null, function(tabs) {
-    // Don't update selection if a tab is being closed, and this function gets called before onRemoved
-    /*
-    console.log("Selection changed: current tabs and cached tabs");
-    console.log(tabs);
-    console.log(cachedTabs);
-    */
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+  void (async function() {
+    var tabs = await getTabs(activeInfo.windowId);
+    var cachedTabs = await getCachedTabs(activeInfo.windowId);
+
     if (cachedTabs.length <= tabs.length) {
-      for (var tab in cachedTabs) {
-        if (cachedTabs[tab].id == tabId)
-          cachedTabs[tab].selected = true;
-        else
-          cachedTabs[tab].selected = false;
-      }
+      await setCachedTabs(activeInfo.windowId, tabs);
     }
-  });
+  })();
 });
 
-chrome.tabs.onMoved.addListener(function(_, _) {
-  updateCachedTabs();
+chrome.tabs.onMoved.addListener(function(_, moveInfo) {
+  void updateCachedTabs(moveInfo.windowId);
 });
 
-chrome.tabs.onAttached.addListener(function(_, _) {
-  updateCachedTabs();
+chrome.tabs.onAttached.addListener(function(_, attachInfo) {
+  void updateCachedTabs(attachInfo.newWindowId);
 });
 
-chrome.windows.onFocusChanged.addListener(function(_) {
-  updateCachedTabs();
+chrome.tabs.onDetached.addListener(function(_, detachInfo) {
+  void updateCachedTabs(detachInfo.oldWindowId);
+});
+
+chrome.windows.onFocusChanged.addListener(function(windowId) {
+  void updateCachedTabs(windowId);
+});
+
+chrome.runtime.onInstalled.addListener(function() {
+  void (async function() {
+    await ensureOptions();
+    await updateAllCachedTabs();
+  })();
 });
 
 chrome.runtime.onStartup.addListener(function() {
-  restore_options();
+  void (async function() {
+    await ensureOptions();
+    await updateAllCachedTabs();
+  })();
 });
+
+void (async function() {
+  await ensureOptions();
+  await updateAllCachedTabs();
+})();
