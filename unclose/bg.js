@@ -7,6 +7,32 @@ function enqueueWrite(asyncFn) {
   return _writeQueue;
 }
 
+async function restoreTab(tabId) {
+  await ensureInitialized();
+
+  var state = await storageGet({
+    actualCount: 0,
+    ["TabList-" + tabId]: null,
+    ["TabIndex-" + tabId]: null
+  });
+  var url = state["TabList-" + tabId];
+  var index = parseInt(state["TabIndex-" + tabId], 10);
+  if (!url)
+    return false;
+
+  var createProperties = {"url": url};
+  if (!isNaN(index))
+    createProperties.index = index;
+
+  await chrome.tabs.create(createProperties);
+  await clear(tabId);
+  await storageSet({
+    actualCount: Math.max((parseInt(state.actualCount, 10) || 0) - 1, 0)
+  });
+  await setBadgeText();
+  return true;
+}
+
 chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
   await enqueueWrite(async () => {
     await ensureInitialized();
@@ -53,4 +79,20 @@ chrome.tabs.onRemoved.addListener(async function(tabId, info) {
     else
       await clear(tabId);
   });
+});
+
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (!message || message.method !== "restoreTab")
+    return false;
+
+  enqueueWrite(async function() {
+    return restoreTab(message.tabId);
+  }).then(function(restored) {
+    sendResponse({ok: restored});
+  }).catch(function(error) {
+    console.error('[unclose] restore failed:', error);
+    sendResponse({ok: false});
+  });
+
+  return true;
 });

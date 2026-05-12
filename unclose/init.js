@@ -1,3 +1,5 @@
+var _initializationPromise = null;
+
 async function clear(tabId) {
   return storageRemove(getTabKeys(tabId));
 }
@@ -15,32 +17,42 @@ async function initialize() {
     closeCount: 0,
     actualCount: 0
   });
+  _initializationPromise = Promise.resolve();
   await setBadgeText();
 }
 
 async function ensureInitialized()
 {
-  var state = await storageGet({
-    closeCount: null,
-    actualCount: null
+  if (_initializationPromise)
+    return _initializationPromise;
+
+  _initializationPromise = (async function() {
+    var state = await storageGet({
+      closeCount: null,
+      actualCount: null
+    });
+    var updates = {};
+
+    if (state.closeCount === null)
+      updates.closeCount = 0;
+    if (state.actualCount === null)
+      updates.actualCount = 0;
+
+    if (Object.keys(updates).length > 0)
+      await storageSet(updates);
+  })().catch(function(error) {
+    _initializationPromise = null;
+    throw error;
   });
-  var updates = {};
 
-  if (state.closeCount === null)
-    updates.closeCount = 0;
-  if (state.actualCount === null)
-    updates.actualCount = 0;
-
-  if (Object.keys(updates).length > 0)
-    await storageSet(updates);
-
-  await setBadgeText();
+  return _initializationPromise;
 }
 
 async function init()
 {
   // Deep clean: clear storage otherwise we get old history from previous sessions
   await storageClear();
+  _initializationPromise = null;
   await initialize();
 }
 

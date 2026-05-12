@@ -106,7 +106,7 @@ async function loadText()
 
 function loadFavicon() {
   var imgs = document.images;
-  for (i=0; i<imgs.length; i++)
+  for (var i = 0; i < imgs.length; i++)
     imgs[i].src = imgs[i].alt;
 }
 
@@ -130,29 +130,13 @@ function prev() {
 
 // Show |url| in a new tab.
 async function showUrl(tabId) {
-  var state = await storageGet({
-    ["TabList-" + tabId]: null,
-    ["TabIndex-" + tabId]: null
+  var response = await chrome.runtime.sendMessage({
+    method: "restoreTab",
+    tabId: tabId
   });
-  var url = state["TabList-" + tabId];
-  var index = parseInt(state["TabIndex-" + tabId], 10);
-  if (!url)
-    return;
 
-  var createProperties = {"url": url};
-  if (!isNaN(index))
-    createProperties.index = index;
-
-  await chrome.tabs.create(createProperties);
-  await clear(tabId);
-  // Re-read actualCount right before decrementing to minimise the race window
-  // with concurrent onRemoved increments.
-  var currentCount = parseInt(await storageGet("actualCount"), 10) || 0;
-  await storageSet({
-    actualCount: Math.max(currentCount - 1, 0)
-  });
-  await setBadgeText();
-  await loadContent();
+  if (response && response.ok)
+    await loadContent();
 }
 
 async function reset()
