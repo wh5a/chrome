@@ -5,7 +5,7 @@ function getLegacyOption(key) {
 
 chrome.runtime.onMessage.addListener(function(message, _, sendResponse) {
   if (!message || message.type !== "get-legacy-options") {
-    return;
+    return false;
   }
 
   sendResponse({

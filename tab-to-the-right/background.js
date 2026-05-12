@@ -91,29 +91,38 @@ async function updateAllCachedTabs() {
 }
 
 async function ensureOptions() {
-  var storedOptions = await chrome.storage.local.get(["create", "close"]);
-  var updates = {};
-
-  if (storedOptions.create === undefined) {
-    updates.create = DEFAULT_OPTIONS.create;
-  }
-
-  if (storedOptions.close === undefined) {
-    updates.close = DEFAULT_OPTIONS.close;
-  }
+  var updates = getMissingOptionDefaults(
+      await chrome.storage.local.get(["create", "close"]));
 
   if (Object.keys(updates).length > 0) {
     await chrome.storage.local.set(updates);
   }
 }
 
+function getMissingOptionDefaults(options) {
+  var updates = {};
+
+  if (options.create === undefined) {
+    updates.create = DEFAULT_OPTIONS.create;
+  }
+
+  if (options.close === undefined) {
+    updates.close = DEFAULT_OPTIONS.close;
+  }
+
+  return updates;
+}
+
+function getOptionValue(options, key) {
+  return options[key] === undefined ?
+      DEFAULT_OPTIONS[key] : parseInt(options[key], 10);
+}
+
 async function getOptions() {
   var options = await chrome.storage.local.get(["create", "close"]);
   return {
-    create: options.create === undefined ?
-        DEFAULT_OPTIONS.create : parseInt(options.create, 10),
-    close: options.close === undefined ?
-        DEFAULT_OPTIONS.close : parseInt(options.close, 10)
+    create: getOptionValue(options, "create"),
+    close: getOptionValue(options, "close")
   };
 }
 
@@ -161,20 +170,19 @@ async function migrateLegacyOptions() {
   var storedOptions = await chrome.storage.local.get(["create", "close"]);
   var updates = {};
 
-  if (storedOptions.create === undefined &&
-      legacyOptions.create !== undefined &&
-      !Number.isNaN(legacyOptions.create)) {
-    updates.create = legacyOptions.create;
-  }
-
-  if (storedOptions.close === undefined &&
-      legacyOptions.close !== undefined &&
-      !Number.isNaN(legacyOptions.close)) {
-    updates.close = legacyOptions.close;
-  }
+  maybeSetMigratedOption(updates, storedOptions, legacyOptions, "create");
+  maybeSetMigratedOption(updates, storedOptions, legacyOptions, "close");
 
   if (Object.keys(updates).length > 0) {
     await chrome.storage.local.set(updates);
+  }
+}
+
+function maybeSetMigratedOption(updates, storedOptions, legacyOptions, key) {
+  if (storedOptions[key] === undefined &&
+      legacyOptions[key] !== undefined &&
+      !Number.isNaN(legacyOptions[key])) {
+    updates[key] = legacyOptions[key];
   }
 }
 
