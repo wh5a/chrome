@@ -44,10 +44,13 @@ async function init()
   await initialize();
 }
 
-chrome.runtime.onInstalled.addListener(async function() {
-  await init();
+chrome.runtime.onInstalled.addListener(async function(details) {
+  if (details.reason === 'install') await init();
+  else await ensureInitialized();
 });
 
 chrome.runtime.onStartup.addListener(async function() {
-  await init();
+  // chrome.storage.session is cleared automatically on browser restart;
+  // just reset the counters and badge.
+  await initialize();
 });
