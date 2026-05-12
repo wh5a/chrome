@@ -1,8 +1,3 @@
-var DEFAULT_OPTIONS = {
-  create: 0,
-  close: 0
-};
-
 function logError(error) {
   console.error(error);
 }

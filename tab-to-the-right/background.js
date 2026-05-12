@@ -1,3 +1,5 @@
+importScripts("defaults.js");
+
 /*
   After some experiments, I make the following (potentially wrong) observations:
   
@@ -13,17 +15,15 @@
   with selIndex.
 */
 
-var DEFAULT_OPTIONS = {
-  create: 0,
-  close: 0
-};
-
 function logError(error) {
   console.error(error);
 }
 
+var OFFSCREEN_DOCUMENT_PATH = "offscreen.html";
+var CACHE_KEY_PREFIX = "cachedTabs:";
+
 function getCacheKey(windowId) {
-  return "cachedTabs:" + windowId;
+  return CACHE_KEY_PREFIX + windowId;
 }
 
 function cloneTabInfo(tabs) {
@@ -63,6 +63,7 @@ async function updateCachedTabs(windowId) {
 async function updateAllCachedTabs() {
   var tabs = await chrome.tabs.query({});
   var groupedTabs = {};
+  var storedValues = await chrome.storage.session.get(null);
 
   tabs.forEach(function(tab) {
     var key = getCacheKey(tab.windowId);
@@ -75,20 +76,29 @@ async function updateAllCachedTabs() {
     });
   });
 
+  var staleKeys = Object.keys(storedValues).filter(function(key) {
+    return key.indexOf(CACHE_KEY_PREFIX) === 0 &&
+        !Object.prototype.hasOwnProperty.call(groupedTabs, key);
+  });
+
+  if (staleKeys.length > 0) {
+    await chrome.storage.session.remove(staleKeys);
+  }
+
   if (Object.keys(groupedTabs).length > 0) {
     await chrome.storage.session.set(groupedTabs);
   }
 }
 
 async function ensureOptions() {
-  var options = await chrome.storage.local.get(DEFAULT_OPTIONS);
+  var storedOptions = await chrome.storage.local.get(["create", "close"]);
   var updates = {};
 
-  if (options.create === undefined) {
+  if (storedOptions.create === undefined) {
     updates.create = DEFAULT_OPTIONS.create;
   }
 
-  if (options.close === undefined) {
+  if (storedOptions.close === undefined) {
     updates.close = DEFAULT_OPTIONS.close;
   }
 
@@ -98,15 +108,79 @@ async function ensureOptions() {
 }
 
 async function getOptions() {
-  var options = await chrome.storage.local.get(DEFAULT_OPTIONS);
+  var options = await chrome.storage.local.get(["create", "close"]);
   return {
-    create: parseInt(options.create, 10),
-    close: parseInt(options.close, 10)
+    create: options.create === undefined ?
+        DEFAULT_OPTIONS.create : parseInt(options.create, 10),
+    close: options.close === undefined ?
+        DEFAULT_OPTIONS.close : parseInt(options.close, 10)
   };
 }
 
+async function hasOffscreenDocument() {
+  var contexts = await chrome.runtime.getContexts({
+    contextTypes: ["OFFSCREEN_DOCUMENT"],
+    documentUrls: [chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH)]
+  });
+  return contexts.length > 0;
+}
+
+async function withOffscreenDocument(action) {
+  var created = false;
+
+  if (!await hasOffscreenDocument()) {
+    await chrome.offscreen.createDocument({
+      url: OFFSCREEN_DOCUMENT_PATH,
+      reasons: ["LOCAL_STORAGE"],
+      justification: "Migrate legacy MV2 localStorage options to chrome.storage.local"
+    });
+    created = true;
+  }
+
+  try {
+    return await action();
+  } finally {
+    if (created) {
+      await chrome.offscreen.closeDocument();
+    }
+  }
+}
+
+async function migrateLegacyOptions() {
+  var legacyOptions = await withOffscreenDocument(function() {
+    return chrome.runtime.sendMessage({type: "get-legacy-options"});
+  });
+  var storedOptions = await chrome.storage.local.get(["create", "close"]);
+  var updates = {};
+
+  if (storedOptions.create === undefined &&
+      legacyOptions.create !== undefined &&
+      !Number.isNaN(legacyOptions.create)) {
+    updates.create = legacyOptions.create;
+  }
+
+  if (storedOptions.close === undefined &&
+      legacyOptions.close !== undefined &&
+      !Number.isNaN(legacyOptions.close)) {
+    updates.close = legacyOptions.close;
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await chrome.storage.local.set(updates);
+  }
+}
+
+async function initializeExtension() {
+  await migrateLegacyOptions();
+  await ensureOptions();
+  await updateAllCachedTabs();
+}
+
+var ready = initializeExtension();
+
 chrome.tabs.onCreated.addListener(function(tab) {
   (async function() {
+    await ready;
     var options = await getOptions();
     var cachedTabs = await getCachedTabs(tab.windowId);
     var selIndex = cachedTabs.findIndex(function(cachedTab) {
@@ -137,6 +211,7 @@ chrome.tabs.onCreated.addListener(function(tab) {
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   (async function() {
+    await ready;
     if (removeInfo.isWindowClosing) {
       return;
     }
@@ -170,6 +245,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   (async function() {
+    await ready;
     var tabs = await getTabs(activeInfo.windowId);
     var cachedTabs = await getCachedTabs(activeInfo.windowId);
 
@@ -180,36 +256,25 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 });
 
 chrome.tabs.onMoved.addListener(function(_, moveInfo) {
-  updateCachedTabs(moveInfo.windowId).catch(logError);
+  ready.then(function() {
+    return updateCachedTabs(moveInfo.windowId);
+  }).catch(logError);
 });
 
 chrome.tabs.onAttached.addListener(function(_, attachInfo) {
-  updateCachedTabs(attachInfo.newWindowId).catch(logError);
+  ready.then(function() {
+    return updateCachedTabs(attachInfo.newWindowId);
+  }).catch(logError);
 });
 
 chrome.tabs.onDetached.addListener(function(_, detachInfo) {
-  updateCachedTabs(detachInfo.oldWindowId).catch(logError);
+  ready.then(function() {
+    return updateCachedTabs(detachInfo.oldWindowId);
+  }).catch(logError);
 });
 
 chrome.windows.onFocusChanged.addListener(function(windowId) {
-  updateCachedTabs(windowId).catch(logError);
+  ready.then(function() {
+    return updateCachedTabs(windowId);
+  }).catch(logError);
 });
-
-chrome.runtime.onInstalled.addListener(function() {
-  (async function() {
-    await ensureOptions();
-    await updateAllCachedTabs();
-  })().catch(logError);
-});
-
-chrome.runtime.onStartup.addListener(function() {
-  (async function() {
-    await ensureOptions();
-    await updateAllCachedTabs();
-  })().catch(logError);
-});
-
-(async function() {
-  await ensureOptions();
-  await updateAllCachedTabs();
-})().catch(logError);
