@@ -32,7 +32,7 @@ chrome.tabs.onRemoved.addListener(async function(tabId, info)  {
       actualCount: actualCount
     };
     updates["ClosedTab-" + closeCount] = tabId;
-    updates["ClosedTabTime-" + closeCount] = Date.now();
+    updates["ClosedTabTime-" + closeCount] = new Date().getTime();
     await storageSet(updates);
     await setBadgeText();
   }
