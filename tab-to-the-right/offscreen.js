@@ -12,4 +12,5 @@ chrome.runtime.onMessage.addListener(function(message, _, sendResponse) {
     create: getLegacyOption("create"),
     close: getLegacyOption("close")
   });
+  return true;
 });

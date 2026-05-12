@@ -77,7 +77,7 @@ async function updateAllCachedTabs() {
   });
 
   var staleKeys = Object.keys(storedValues).filter(function(key) {
-    return key.indexOf(CACHE_KEY_PREFIX) === 0 &&
+    return key.startsWith(CACHE_KEY_PREFIX) &&
         !Object.prototype.hasOwnProperty.call(groupedTabs, key);
   });
 
@@ -147,9 +147,17 @@ async function withOffscreenDocument(action) {
 }
 
 async function migrateLegacyOptions() {
-  var legacyOptions = await withOffscreenDocument(function() {
-    return chrome.runtime.sendMessage({type: "get-legacy-options"});
-  });
+  var legacyOptions;
+
+  try {
+    legacyOptions = await withOffscreenDocument(function() {
+      return chrome.runtime.sendMessage({type: "get-legacy-options"});
+    });
+  } catch (error) {
+    logError(error);
+    return;
+  }
+
   var storedOptions = await chrome.storage.local.get(["create", "close"]);
   var updates = {};
 
