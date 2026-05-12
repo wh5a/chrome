@@ -8,33 +8,51 @@ function createLink(id, url) {
   return link;
 }
 
-function loadText()
+function appendTime(parent, label)
 {
-  // Don't popup if there's nothing to show
-  var n = localStorage["actualCount"];
-  if (parseInt(n) == 0)
+  if (!label)
+    return;
+
+  var textdiv = document.createElement('span');
+  var bold = document.createElement('b');
+  bold.textContent = label;
+  textdiv.appendChild(bold);
+  parent.appendChild(textdiv);
+}
+
+async function loadText()
+{
+  await ensureInitialized();
+
+  var state = await storageGetAll();
+  var n = parseInt(state.actualCount, 10) || 0;
+  if (n == 0) {
     window.close();
+    return;
+  }
+
+  while (pageNo > 0 && n <= pageNo * nItems)
+    pageNo--;
 
   var tabId, tabUrl, tabTime;
-  
-  content = document.getElementById("contentDiv");
+  var content = document.getElementById("contentDiv");
   // Clear
   while (content.hasChildNodes())
     content.removeChild(content.firstChild);
   
   // Drop the first (pageNo*nItems) valid items
-  for (j = 0, i = localStorage["closeCount"] - 1; i>=0 && j<pageNo*nItems; i--)
+  for (var j = 0, i = (parseInt(state.closeCount, 10) || 0) - 1; i>=0 && j<pageNo*nItems; i--)
   {
-    tabId = localStorage["ClosedTab-"+i];
-    tabUrl = localStorage["TabList-"+tabId];
+    tabId = state["ClosedTab-"+i];
+    tabUrl = state["TabList-"+tabId];
     if (tabUrl) j++;
   }
 
   for (j = 0; i>=0 && j<nItems; i --)
   {
-    tabId = localStorage["ClosedTab-"+i];
-    tabTime = localStorage["ClosedTabTime-"+i];
-    tabUrl = localStorage["TabList-"+tabId];
+    tabId = state["ClosedTab-"+i];
+    tabTime = state["ClosedTabTime-"+i];
+    tabUrl = state["TabList-"+tabId];
     if (tabUrl) {
       // Create a link node and the anchor encapsulating it.
       var text_link = createLink(tabId, tabUrl);
@@ -43,17 +61,16 @@ function loadText()
       // On load, we don't try to pull the favicons.
       img.src = "";
       // Save the url in alt
-      if (localStorage["TabFavicon-"+tabId])
-        img.alt = localStorage["TabFavicon-"+tabId];
+      if (state["TabFavicon-"+tabId])
+        img.alt = state["TabFavicon-"+tabId];
       else img.alt = "empty.png";
       img.width = 16;
       img.height = 16;
       text_link.appendChild(img);
 
       var textdiv = document.createElement('a');
-      textdiv.innerHTML = " " + localStorage["TabTitle-"+tabId]; 
+      textdiv.textContent = " " + (state["TabTitle-"+tabId] || tabUrl);
       text_link.appendChild(textdiv);
-      var textdiv2 = document.createElement('span');
       var timeTextz='';
       
       var nowtime = new Date();
@@ -71,8 +88,8 @@ function loadText()
       else if (hoursDifference < 1) timeTextz = '<b>'+ minutesDifference + ' min</b>'; 
       else if (hoursDifference < 4) timeTextz= '<b>' + hoursDifference + 'hr ' + minutesDifference + 'm</b>'; 
       else if (hoursDifference < 24) timeTextz='<b>' + hoursDifference + ' hr</b>'; 
-      textdiv2.innerHTML=timeTextz;
-      text_link.appendChild(textdiv2);
+      if (timeTextz)
+        appendTime(text_link, timeTextz.replace(/<\/?b>/g, ""));
       
       content.appendChild(text_link);
       j++;
@@ -82,7 +99,7 @@ function loadText()
   if (pageNo > 0)
     document.getElementById("prev").style.visibility="visible";
   else document.getElementById("prev").style.visibility="hidden";
-  if (localStorage["actualCount"] > (pageNo+1) * nItems)
+  if (n > (pageNo+1) * nItems)
     document.getElementById("next").style.visibility="visible";
   else document.getElementById("next").style.visibility="hidden";
 }
@@ -93,15 +110,14 @@ function loadFavicon() {
     imgs[i].src = imgs[i].alt;
 }
 
-function loadContent() {
-  loadText();
+async function loadContent() {
+  await loadText();
   // Delay this function a little bit in order not to halt the popup
   setTimeout(loadFavicon, 500);
 }
 
 function next() {
-  if (localStorage["actualCount"] > (pageNo+1) * nItems)
-    pageNo++;
+  pageNo++;
   loadContent();
 }
 
@@ -112,29 +128,57 @@ function prev() {
 }
 
 // Show |url| in a new tab.
-function showUrl(tabId) {
-  var url = localStorage["TabList-"+tabId];
-  var index = parseInt(localStorage["TabIndex-"+tabId]);
-  chrome.tabs.create({"url": url, "index": index});
-  clear(tabId);
-  localStorage["actualCount"] --;
-  setBadgeText();
-  loadContent();
+async function showUrl(tabId) {
+  var state = await storageGet({
+    actualCount: 0,
+    ["TabList-" + tabId]: null,
+    ["TabIndex-" + tabId]: null
+  });
+  var url = state["TabList-" + tabId];
+  var index = parseInt(state["TabIndex-" + tabId], 10);
+  if (!url)
+    return;
+
+  var createProperties = {"url": url};
+  if (!isNaN(index))
+    createProperties.index = index;
+
+  await chrome.tabs.create(createProperties);
+  await clear(tabId);
+  await storageSet({
+    actualCount: Math.max((parseInt(state.actualCount, 10) || 0) - 1, 0)
+  });
+  await setBadgeText();
+  await loadContent();
 }
 
-function reset()
+async function reset()
 {
   // Shallow clean: only forgets history about closed tabs
-  for(i = localStorage["closeCount"]-1; i >= 0; i--)
+  var state = await storageGetAll();
+  var keys = [];
+
+  for(var i = (parseInt(state.closeCount, 10) || 0) - 1; i >= 0; i--)
   {
-    tabId = localStorage["ClosedTab-"+i];
-    delete localStorage["ClosedTab-"+i];
-    delete localStorage["ClosedTabTime-"+i];
-    clear(tabId);
+    var tabId = state["ClosedTab-"+i];
+    keys.push("ClosedTab-"+i, "ClosedTabTime-"+i);
+    if (tabId != null)
+      keys = keys.concat(getTabKeys(tabId));
   }
 
-  initialize();
+  await storageRemove(keys);
+  await initialize();
 
   pageNo = 0;
   window.close();
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  document.body.addEventListener("selectstart", function(event) {
+    event.preventDefault();
+  });
+  document.getElementById("prev").addEventListener("click", prev);
+  document.getElementById("next").addEventListener("click", next);
+  document.getElementById("clear").addEventListener("click", reset);
+  loadContent();
+});

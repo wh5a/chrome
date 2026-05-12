@@ -1,28 +1,53 @@
-function clear(tabId) {
-  delete localStorage["TabList-"+tabId];
-  delete localStorage["TabIndex-"+tabId];
-  delete localStorage["TabTitle-"+tabId];
-  delete localStorage["TabFavicon-"+tabId];
+async function clear(tabId) {
+  return storageRemove(getTabKeys(tabId));
 }
   
-function setBadgeText() {
-  var n = localStorage["actualCount"];
-  if (parseInt(n) > 0)
-      chrome.browserAction.setBadgeText({text:n});
+async function setBadgeText() {
+  var n = parseInt(await storageGet("actualCount"), 10) || 0;
+  if (n > 0)
+      await chrome.action.setBadgeText({text: String(n)});
   else
-    chrome.browserAction.setBadgeText({text:""});
+    await chrome.action.setBadgeText({text:""});
 }
 
-function initialize() {
-  localStorage["closeCount"] = 0;
-  localStorage["actualCount"] = 0;
-  setBadgeText();
+async function initialize() {
+  await storageSet({
+    closeCount: 0,
+    actualCount: 0
+  });
+  await setBadgeText();
 }
 
-function init()
+async function ensureInitialized()
 {
-  // Deep clean: clear localStorage otherwise we get old history from previous sessions
-  localStorage.clear();
+  var state = await storageGet({
+    closeCount: null,
+    actualCount: null
+  });
+  var updates = {};
 
-  initialize();
+  if (state.closeCount === null)
+    updates.closeCount = 0;
+  if (state.actualCount === null)
+    updates.actualCount = 0;
+
+  if (Object.keys(updates).length > 0)
+    await storageSet(updates);
+
+  await setBadgeText();
 }
+
+async function init()
+{
+  // Deep clean: clear storage otherwise we get old history from previous sessions
+  await storageClear();
+  await initialize();
+}
+
+chrome.runtime.onInstalled.addListener(function() {
+  init();
+});
+
+chrome.runtime.onStartup.addListener(function() {
+  init();
+});

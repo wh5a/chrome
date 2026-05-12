@@ -1,33 +1,41 @@
-// Replace HTML tags < >
-function quote(s) {
-  var s1 = s.replace("<", "&lt;");
-  var s2 = s1.replace(">", "&gt;");
-  return s2;
-}
-
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-  localStorage["TabList-"+tabId] = tab.url;
-  localStorage["TabIndex-"+tabId] = tab.index;
+chrome.tabs.onUpdated.addListener(async function(tabId, changeInfo, tab) {
+  await ensureInitialized();
+  var updates = {};
+  if (tab.url)
+    updates["TabList-" + tabId] = tab.url;
+  updates["TabIndex-" + tabId] = tab.index;
   if (tab.favIconUrl)
-    localStorage["TabFavicon-"+tabId] = tab.favIconUrl;
+    updates["TabFavicon-" + tabId] = tab.favIconUrl;
   if(tab.title != null)
-    localStorage["TabTitle-"+tabId] = quote(tab.title);
-  else
-    localStorage["TabTitle-"+tabId] = tab.url;
+    updates["TabTitle-" + tabId] = tab.title;
+  else if (tab.url)
+    updates["TabTitle-" + tabId] = tab.url;
+  await storageSet(updates);
 });
 
-chrome.tabs.onRemoved.addListener(function(tabId, info)  {
+chrome.tabs.onRemoved.addListener(async function(tabId, info)  {
+  await ensureInitialized();
   // Should we record this tab?
-  var url = localStorage["TabList-"+tabId];
+  var tabKey = "TabList-" + tabId;
+  var state = await storageGet({
+    closeCount: 0,
+    actualCount: 0,
+    [tabKey]: null
+  });
+  var url = state[tabKey];
   var re = /^(http:|https:|ftp:|file:)/;
   if (url && re.test(url)) {
-    var digital = new Date();
-
-    localStorage["ClosedTab-"+localStorage["closeCount"]] = tabId;
-    localStorage["ClosedTabTime-"+localStorage["closeCount"]] = digital.getTime();
-    localStorage["closeCount"] ++;
-    localStorage["actualCount"] ++;
-    setBadgeText();
+    var closeCount = parseInt(state.closeCount, 10) || 0;
+    var actualCount = (parseInt(state.actualCount, 10) || 0) + 1;
+    var updates = {
+      closeCount: closeCount + 1,
+      actualCount: actualCount
+    };
+    updates["ClosedTab-" + closeCount] = tabId;
+    updates["ClosedTabTime-" + closeCount] = Date.now();
+    await storageSet(updates);
+    await setBadgeText();
   }
-  else clear(tabId);
+  else
+    await clear(tabId);
 });

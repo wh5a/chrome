@@ -65,20 +65,21 @@ button:hover{
   }
 
 </style>
-<script src="popup.js"> </script>
+<script src="storage.js"> </script>
 <script src="init.js"> </script>
+<script src="popup.js"> </script>
 
 </head>
-<body onload="loadContent()" onselectstart="return false;">
+<body>
   <div id="contentDiv"> </div>
   <table class="table" cellspacing="0" cellpadding="0" border="0" frame="void">
     <tr>
       <td>
-        <button id="prev" onclick="prev()">&lt;</button>
-        <button id="next" onclick="next()">&gt;</button>
+        <button id="prev">&lt;</button>
+        <button id="next">&gt;</button>
       </td>
       <td style="text-align: right">
-        <button onclick="reset()">Clear</button>
+        <button id="clear">Clear</button>
       </td>
     </tr>
   </table>
